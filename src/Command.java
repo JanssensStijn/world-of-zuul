@@ -55,10 +55,6 @@ public class Command
     {
         return secondWord;
     }
-    public String getThirdWord()
-    {
-        return thirdWord;
-    }
 
     /**
      * @return true if this command was not understood.
@@ -74,10 +70,6 @@ public class Command
     public boolean hasSecondWord()
     {
         return (secondWord != null);
-    }
-    public boolean hasThirdWord()
-    {
-        return (thirdWord != null);
     }
 }
 

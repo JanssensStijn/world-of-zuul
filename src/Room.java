@@ -1,4 +1,3 @@
-import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -24,7 +23,7 @@ public class Room {
     /**
      * Create a room described "description". Initially, it has
      * no exits. "description" is something like "a kitchen" or
-     * "an open court yard".
+     * "an open courtyard".
      *
      * @param description The room's description.
      */
@@ -35,7 +34,7 @@ public class Room {
     }
 
     public Room getExit(String direction) {
-        return exits.get(direction);
+        return exits.get(direction.toUpperCase());
     }
 
     public void addItem(Item item, int amount) {
@@ -49,8 +48,8 @@ public class Room {
      * @param direction direction for which to add exit
      * @param neighbor  The exit
      */
-    public void setExit(String direction, Room neighbor) {
-        exits.put(direction, neighbor);
+    public void setExit(Direction direction, Room neighbor) {
+        exits.put(direction.name(), neighbor);
     }
 
     /**
@@ -61,8 +60,8 @@ public class Room {
     }
 
     /**
-     * @return string met alle aanwezige uitgangen
-     * bvb. "Exits: north west".
+     * @return String met alle aanwezige uitgangen
+     * bv. "Exits: north west".
      */
     public String getExitString() {
         String returnString = "Exits: ";
@@ -93,15 +92,43 @@ public class Room {
     public Item getItem(String name) {
         for (Item item : items.keySet()) {
             if (item.getName().equals(name)) {
-                if (items.keySet().remove(item)) {
-                    return item;
-                }
+                return item;
             }
         }
         return null;
     }
+    public int getNumberOfItem(String name) {
+        for (Item item : items.keySet()) {
+            if (item.getName().equals(name)) {
+                return items.get(item);
+            }
+        }
+        return 0;
+    }
+    public void removeItem(Item itemToBeRemoved){
+        for (Item item : items.keySet()) {
+            if (item == itemToBeRemoved) {
+                items.remove(itemToBeRemoved);
+            }
+        }
+    }
 
     public String getLongDescription() {
-        return "You are " + description + getItemsString() + "\n"  + getExitString();
+        return "You are " + description + "\n"  + getExitString();
     }
+
+    public String getLongItemDescription() {
+        return "You see following items in the room:\n" + getItemsString();
+    }
+    public String getShortItemDescription() {
+        String returnString = "You see following items in the room: ";
+        if (items.isEmpty()) return returnString + " nothing.";
+            else{
+            for (Item item : items.keySet()) {
+                returnString += "\n   " + item.getName() + " {" + items.get(item) + "}" + "\n";
+            }
+            return returnString;
+        }
+    }
+
 }

@@ -19,13 +19,15 @@ public class Game {
     private Parser parser;
     private Player player;
     private Room cottage, forest, court, westPlaza, entrance, blacksmith, eastPlaza, watchTower, lookOut, pub, cellar;
-    private Item coin, sword;
+    private Item coin, sword, staff, shield, armor;
 
     /**
      * Create the game and initialise its internal map.
      */
     public Game() {
         createRooms();
+        createItems();
+        createCharacters();
         parser = new Parser();
     }
 
@@ -38,9 +40,45 @@ public class Game {
         cottage = new Room("inside the lonely cottage behind the forest");
         forest = new Room("in the forest");
         court = new Room("in the court");
-        pub = new Room("in the campus pub");
+        westPlaza = new Room("on the western half of the plaza");
+        entrance = new Room("at the entrance");
+        blacksmith = new Room("in the blacksmith's shop");
+        eastPlaza = new Room("on the eastern half of the plaza");
+        watchTower = new Room("in the watchtower");
+        lookOut = new Room("in the look-out");
+        pub = new Room("in the pub");
+        cellar = new Room("in the pub's cellar");
 
-        this.player = new Player("Tom", entrance);
+        cottage.setExit(Direction.EAST, forest);
+
+        forest.setExit(Direction.WEST, cottage);
+        forest.setExit(Direction.EAST, westPlaza);
+
+        westPlaza.setExit(Direction.WEST, forest);
+        westPlaza.setExit(Direction.NORTH, court);
+        westPlaza.setExit(Direction.EAST, eastPlaza);
+        westPlaza.setExit(Direction.SOUTH, entrance);
+
+        court.setExit(Direction.SOUTH, westPlaza);
+
+        entrance.setExit(Direction.NORTH, westPlaza);
+
+        eastPlaza.setExit(Direction.EAST, pub);
+        eastPlaza.setExit(Direction.NORTH, blacksmith);
+        eastPlaza.setExit(Direction.WEST, westPlaza);
+        eastPlaza.setExit(Direction.SOUTH, watchTower);
+
+        blacksmith.setExit(Direction.SOUTH, eastPlaza);
+
+        pub.setExit(Direction.WEST, eastPlaza);
+        pub.setExit(Direction.DOWN, cellar);
+
+        cellar.setExit(Direction.UP, pub);
+
+        watchTower.setExit(Direction.NORTH, eastPlaza);
+        watchTower.setExit(Direction.UP, lookOut);
+
+        lookOut.setExit(Direction.DOWN, watchTower);
     }
 
     /**
@@ -51,9 +89,26 @@ public class Game {
         // create the items
         sword = new Item("sword", "A pointy and sharp thing", 2.3);
         coin = new Item("coin", "Something you can pay with", 0.01);
+        staff = new Item("staff", "a staff that wields great power", 1.2);
+        shield = new Item("shield", "a square shield", 2.4);
+        armor = new Item("shield", "the armor of a black knight", 2.4);
 
         //add items to rooms or characters
+        cottage.addItem(staff, 1);
+        watchTower.addItem(shield, 1);
+        watchTower.addItem(armor, 1);
         eastPlaza.addItem(coin, 2);
+        pub.addItem(coin, 5);
+
+    }
+
+    /**
+     * Create all the characters including the player.
+     */
+    private void createCharacters() {
+
+        this.player = new Player("Tom", entrance);
+
     }
 
     /**
@@ -81,13 +136,17 @@ public class Game {
         System.out.println("Welcome to the World of Zuul!");
         System.out.println("World of Zuul is a text base adventure game.");
         System.out.println("Type 'help' if you need help.");
+
+        System.out.println();
+
+        System.out.println(player.getLongDescription());
         System.out.println();
         printLocationInfo();
+        System.out.println();
     }
 
     private void printLocationInfo() {
-        System.out.println(player.getCurrentRoom().getLongDescription());
-        System.out.println(player.getLongDescription());
+        System.out.println("You're " +  player.getCurrentRoom().getDescription());
         System.out.println();
     }
 
@@ -110,12 +169,14 @@ public class Game {
             printHelp();
         } else if (commandWord.equals("look")) {
             look();
-        } else if (commandWord.equals("eat")) {
-            eat();
+        } else if (commandWord.equals("search")) {
+            search();
         } else if (commandWord.equals("take")) {
             take(command);
         } else if (commandWord.equals("drop")) {
             drop(command);
+        } else if (commandWord.equals("inventory")) {
+            showInventory();
         } else if (commandWord.equals("go")) {
             goRoom(command);
         } else if (commandWord.equals("quit")) {
@@ -144,8 +205,8 @@ public class Game {
         System.out.println(player.getCurrentRoom().getLongDescription());
     }
 
-    private void eat() {
-        System.out.println("Je hebt nu gegeten en bent niet meer hongerig\n");
+    private void search() {
+        System.out.println(player.getCurrentRoom().getShortItemDescription());
     }
 
     /**
@@ -193,12 +254,15 @@ public class Game {
             return;
         }
         String itemName = command.getSecondWord();
-        int amount = Integer.parseInt(command.getThirdWord());
-        if (player.drop(itemName, amount)) {
-            printLocationInfo();
+        if (player.drop(itemName)) {
+            System.out.println("You dropped the item");
         } else {
             System.out.println("There is no item here with the name " + itemName);
         }
+    }
+
+    private void showInventory(){
+        System.out.println(player.getShortItemDescription());
     }
 
     /**
