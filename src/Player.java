@@ -42,12 +42,12 @@ public class Player {
         return false;
     }
 
-    public boolean drop(String itemName) {
+    public boolean drop(String itemName, int amount) {
         if (this.hasItem(itemName)) {
             for (Item item : items) {
                 if (item.getName().equals(itemName)) {
                     if (items.remove(item)) {
-                        currentRoom.addItem(item);
+                        currentRoom.addItem(item, amount);
                         return true;
                     }
                 }

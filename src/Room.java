@@ -19,7 +19,7 @@ import java.util.HashMap;
 public class Room {
     private String description;
     private HashMap<String, Room> exits;
-    private ArrayList<Item> items;
+    private HashMap<Item, Integer> items;
 
     /**
      * Create a room described "description". Initially, it has
@@ -31,15 +31,15 @@ public class Room {
     public Room(String description) {
         this.description = description;
         exits = new HashMap<>();
-        items = new ArrayList<>();
+        items = new HashMap<>();
     }
 
     public Room getExit(String direction) {
         return exits.get(direction);
     }
 
-    public void addItem(Item item) {
-        items.add(item);
+    public void addItem(Item item, int amount) {
+        items.put(item, amount);
     }
 
     /**
@@ -75,7 +75,7 @@ public class Room {
     public String getItemsString() {
         if (!items.isEmpty()) {
             String returnString = "; it contains items:\n";
-            for (Item item : items) {
+            for (Item item : items.keySet()) {
                 returnString += "   " + item.getLongDescription() + "\n";
             }
             return returnString;
@@ -84,16 +84,16 @@ public class Room {
     }
 
     public boolean hasItem(String name) {
-        for (Item item : items) {
+        for (Item item : items.keySet()) {
             if (item.getName().equals(name)) return true;
         }
         return false;
     }
 
     public Item getItem(String name) {
-        for (Item item : items) {
+        for (Item item : items.keySet()) {
             if (item.getName().equals(name)) {
-                if (items.remove(item)) {
+                if (items.keySet().remove(item)) {
                     return item;
                 }
             }

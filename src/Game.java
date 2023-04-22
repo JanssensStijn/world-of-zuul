@@ -18,6 +18,8 @@
 public class Game {
     private Parser parser;
     private Player player;
+    private Room cottage, forest, court, westPlaza, entrance, blacksmith, eastPlaza, watchTower, lookOut, pub, cellar;
+    private Item coin, sword;
 
     /**
      * Create the game and initialise its internal map.
@@ -31,36 +33,27 @@ public class Game {
      * Create all the rooms and link their exits together.
      */
     private void createRooms() {
-        Room outside, theater, pub, lab, office, cellar;
-        Item promoBoard, ashtray;
 
         // create the rooms
-        outside = new Room("outside the main entrance of the university");
-        theater = new Room("in a lecture theater");
+        cottage = new Room("inside the lonely cottage behind the forest");
+        forest = new Room("in the forest");
+        court = new Room("in the court");
         pub = new Room("in the campus pub");
-        lab = new Room("in a computing lab");
-        office = new Room("in the computing admin office");
-        cellar = new Room("in the cellar");
+
+        this.player = new Player("Tom", entrance);
+    }
+
+    /**
+     * Create all the rooms and link their exits together.
+     */
+    private void createItems() {
 
         // create the items
-        promoBoard = new Item("promoboard", "University promoboard", 2.3);
-        ashtray = new Item("ashtray", "Big yellow ashtray", 4.6);
+        sword = new Item("sword", "A pointy and sharp thing", 2.3);
+        coin = new Item("coin", "Something you can pay with", 0.01);
 
-        // initialise room exits
-        outside.setExit("east", theater);
-        outside.addItem(promoBoard);
-        outside.addItem(ashtray);
-        outside.setExit("south", lab);
-        outside.setExit("west", pub);
-        theater.setExit("west", outside);
-        pub.setExit("east", outside);
-        lab.setExit("north", outside);
-        lab.setExit("east", office);
-        office.setExit("west", lab);
-        office.setExit("down", cellar);
-        cellar.setExit("up", office);
-
-        this.player = new Player("Tom", outside);
+        //add items to rooms or characters
+        eastPlaza.addItem(coin, 2);
     }
 
     /**
@@ -86,7 +79,7 @@ public class Game {
     private void printWelcome() {
         System.out.println();
         System.out.println("Welcome to the World of Zuul!");
-        System.out.println("World of Zuul is a new, incredibly boring adventure game.");
+        System.out.println("World of Zuul is a text base adventure game.");
         System.out.println("Type 'help' if you need help.");
         System.out.println();
         printLocationInfo();
@@ -200,7 +193,8 @@ public class Game {
             return;
         }
         String itemName = command.getSecondWord();
-        if (player.drop(itemName)) {
+        int amount = Integer.parseInt(command.getThirdWord());
+        if (player.drop(itemName, amount)) {
             printLocationInfo();
         } else {
             System.out.println("There is no item here with the name " + itemName);
