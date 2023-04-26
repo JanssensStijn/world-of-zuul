@@ -19,6 +19,7 @@ public class Room {
     private String description;
     private HashMap<String, Room> exits;
     private HashMap<Item, Integer> items;
+    private HashMap<NPC, Integer> npcs;
 
     /**
      * Create a room described "description". Initially, it has
@@ -31,6 +32,7 @@ public class Room {
         this.description = description;
         exits = new HashMap<>();
         items = new HashMap<>();
+        npcs = new HashMap<>();
     }
 
     public Room getExit(String direction) {
@@ -128,6 +130,34 @@ public class Room {
                 returnString += "\n   " + item.getName() + " {" + items.get(item) + "}" + "\n";
             }
             return returnString;
+        }
+    }
+
+    public void addNPC(NPC npc, int amount){
+        npcs.put(npc, amount);
+    }
+
+    public HashMap<NPC, Integer> getNPCs(){return npcs;}
+    public boolean containsEnemy(){
+        checkDeadEnemies();
+        if(!npcs.isEmpty()){
+            for (NPC npc: npcs.keySet()) {
+                if(npc.IsEnemy()) return true;
+            }
+        }
+        return false;
+
+    }
+    public void checkDeadEnemies(){
+        if(!npcs.isEmpty()) {
+            for (NPC npc : npcs.keySet()) {
+                if (!npc.isAlive())
+                    if (npcs.get(npc) > 1) {
+                        npc.resetLife();
+                        npcs.put(npc, npcs.get(npc) - 1);
+                    }
+                npcs.remove(npc);
+            }
         }
     }
 

@@ -1,18 +1,23 @@
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
 
 public class Player {
     private String name;
     private Room currentRoom;
     private HashMap<Item, Integer> inventory;
 
-    private final int maxLife = 50;
+    private int maxLife;
     private int life;
 
-    public Player(String name, Room currentRoom) {
+    private int maxDamage;
+
+    public Player(String name, Room currentRoom, int maxLife, int maxDamage) {
         this.name = name;
         this.currentRoom = currentRoom;
-        inventory = new HashMap<Item, Integer>();
+        inventory = new HashMap<>();
+        this.maxLife = maxLife;
+        this.maxDamage = maxDamage;
         this.life = this.maxLife;
     }
 
@@ -41,8 +46,11 @@ public class Player {
 
     public boolean take(String itemName) {
         if (currentRoom.hasItem(itemName)) {
-            inventory.put(currentRoom.getItem(itemName), currentRoom.getNumberOfItem(itemName));
-            currentRoom.removeItem(currentRoom.getItem(itemName));
+            if(hasItem(itemName)){
+                inventory.put(currentRoom.getItem(itemName), inventory.get(currentRoom.getItem(itemName)) + currentRoom.getNumberOfItem(itemName));
+            }
+            else inventory.put(currentRoom.getItem(itemName), currentRoom.getNumberOfItem(itemName));
+
             return true;
         }
         return false;
@@ -85,4 +93,26 @@ public class Player {
             return returnString;
         }
     }
+
+    public int attack()
+    {
+        Random randomDamage = new Random();
+        int damage = 0;
+        int additionalDamage =  0;
+        for (Item item: inventory.keySet()) {
+            if(item.getName().equals("sword")) additionalDamage = 5;
+        }
+
+        if(inventory.containsKey("sword"))
+        damage = randomDamage.nextInt(maxDamage) + additionalDamage;
+        return damage;
+    }
+
+    public int takeDamage(int damage){
+        if(damage > life) life = 0;
+        else life -= damage;
+        return life;
+    }
+
+    public int getLife(){return life;}
 }

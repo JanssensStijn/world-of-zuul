@@ -21,6 +21,8 @@ public class Game {
     private Room cottage, forest, court, westPlaza, entrance, blacksmith, eastPlaza, watchTower, lookOut, pub, cellar;
     private Item coin, sword, staff, shield, armor;
 
+    private NPC  troll, smithy, bartender, wizard, guard;
+
     /**
      * Create the game and initialise its internal map.
      */
@@ -98,7 +100,7 @@ public class Game {
         watchTower.addItem(shield, 1);
         watchTower.addItem(armor, 1);
         eastPlaza.addItem(coin, 2);
-        pub.addItem(coin, 5);
+        cellar.addItem(coin, 5);
 
     }
 
@@ -107,8 +109,9 @@ public class Game {
      */
     private void createCharacters() {
 
-        this.player = new Player("Tom", entrance);
-
+        this.player = new Player("Human", entrance, 20, 5);
+        this.troll = new NPC("troll", 20, 5);
+        forest.addNPC(troll, 1);
     }
 
     /**
@@ -183,8 +186,12 @@ public class Game {
             case DROP:
                 drop(command);
                 break;
+            case ATTACK:
+                attack(command);
+                break;
             case GO:
-                goRoom(command);
+                if(!player.getCurrentRoom().containsEnemy()) goRoom(command);
+                else System.out.println("You can't leave with an enemy on your tail");
                 break;
             case QUIT:
                 wantToQuit = quit(command);
@@ -249,7 +256,8 @@ public class Game {
         }
         String itemName = command.getSecondWord();
         if (player.take(itemName)) {
-            printLocationInfo();
+            System.out.println("You took: " + itemName + " {" + player.getCurrentRoom().getNumberOfItem(itemName)+ "}");
+            player.getCurrentRoom().removeItem(player.getCurrentRoom().getItem(itemName));
         } else {
             System.out.println("There is no item here with the name " + itemName);
         }
@@ -271,6 +279,38 @@ public class Game {
 
     private void showInventory() {
         System.out.println(player.getShortItemDescription());
+    }
+    private void attack(Command command) {
+        if (!command.hasSecondWord()) {
+            // if there is no second word, we don't know what to drop...
+            System.out.println("Attack what?");
+            return;
+        }
+        String enemyName = command.getSecondWord();
+        int attack = 0;
+        boolean enemyFound = false;
+
+        for (NPC enemy : player.getCurrentRoom().getNPCs().keySet()){
+
+            if (enemy.getName().equals(enemyName)) {
+                enemyFound = true;
+                //player attacks
+                attack = player.attack();
+                enemy.takeDamage(attack);
+                if (attack == 0) System.out.println("You missed");
+                else System.out.println("You damaged " + enemy.getName() + " by " + attack);
+
+                //enemy attack automatically
+                attack = enemy.attack();
+                player.takeDamage(attack);
+                if (attack == 0) System.out.println(enemy.getName() + " missed");
+                else System.out.println("You damage " + enemy.getName() + " by " + attack);
+
+            }
+
+
+        }
+        if(!enemyFound) System.out.println("There is no enemy with the name " + enemyName);
     }
 
     /**
