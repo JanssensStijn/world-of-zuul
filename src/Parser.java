@@ -32,7 +32,7 @@ public class Parser {
     /**
      * @return The next command from the user.
      */
-    public Command getCommand() {
+    public Command getCommandWord() {
         String inputLine;   // will hold the full input line
         String word1 = null;
         String word2 = null;
@@ -59,9 +59,9 @@ public class Parser {
         // Now check whether this word is known. If so, create a command
         // with it. If not, create a "null" command (for unknown command).
         if (commands.isCommand(word1)) {
-            return new Command(word1, word2, word3);
+            return new Command(commands.getCommand(word1), word2);
         } else {
-            return new Command(null, word2, word3);
+            return new Command(CommandWord.UNKNOWN, word2);
         }
     }
 

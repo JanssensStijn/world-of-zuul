@@ -19,9 +19,8 @@
 
 public class Command
 {
-    private String commandWord;
+    private CommandWord commandWord;
     private String secondWord;
-    private String thirdWord;
 
     /**
      * Create a command object. First and second word must be supplied, but
@@ -30,11 +29,10 @@ public class Command
      *                  was not recognised.
      * @param secondWord The second word of the command.
      */
-    public Command(String firstWord, String secondWord, String thirdWord)
+    public Command(CommandWord firstWord, String secondWord)
     {
         commandWord = firstWord;
         this.secondWord = secondWord;
-        this.thirdWord = thirdWord;
     }
 
     /**
@@ -42,7 +40,7 @@ public class Command
      * command was not understood, the result is null.
      * @return The command word.
      */
-    public String getCommandWord()
+    public CommandWord getCommandWord()
     {
         return commandWord;
     }
@@ -61,7 +59,7 @@ public class Command
      */
     public boolean isUnknown()
     {
-        return (commandWord == null);
+        return (commandWord == CommandWord.UNKNOWN);
     }
 
     /**

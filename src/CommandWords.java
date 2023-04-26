@@ -1,3 +1,5 @@
+import java.util.HashMap;
+
 /**
  * This class is part of the "World of Zuul" application.
  * "World of Zuul" is a very simple, text based adventure game.
@@ -11,15 +13,19 @@
 
 public class CommandWords {
     // a constant array that holds all valid command words
-    private static final String[] validCommands = {
-            "go", "look", "search", "take", "drop", "inventory", "quit", "help"
-    };
+    /*private static final String[] validCommands = {
+            "go", "look", "eat", "take", "drop", "quit", "help"
+    };*/
+    private HashMap<String, CommandWord> validCommands;
 
-    /**
-     * Constructor - initialise the command words.
-     */
+    /*** Constructor - initialise the command words.*/
     public CommandWords() {
-        // nothing to do at the moment...
+        validCommands = new HashMap<String, CommandWord>();
+        for (CommandWord command : CommandWord.values()) {
+            if (command != CommandWord.UNKNOWN) {
+                validCommands.put(command.toString(), command);
+            }
+        }
     }
 
     /**
@@ -29,17 +35,19 @@ public class CommandWords {
      * false if it isn't.
      */
     public boolean isCommand(String aString) {
-        for (int i = 0; i < validCommands.length; i++) {
-            if (validCommands[i].equals(aString))
-                return true;
-        }
+        if (validCommands.containsKey(aString)) return true;
         // if we get here, the string was not found in the commands
         return false;
     }
 
+    public CommandWord getCommand(String aString) {
+        if (validCommands.containsKey(aString)) return validCommands.get(aString);
+        return CommandWord.UNKNOWN;
+    }
+
     public String showAll() {
         String show = "";
-        for (String command : validCommands) {
+        for (String command : validCommands.keySet()) {
             show += command + " ";
         }
         return show;

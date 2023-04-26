@@ -122,7 +122,7 @@ public class Game {
 
         boolean finished = false;
         while (!finished) {
-            Command command = parser.getCommand();
+            Command command = parser.getCommandWord();
             finished = processCommand(command);
         }
         System.out.println("Thank you for playing.  Good bye.");
@@ -135,7 +135,7 @@ public class Game {
         System.out.println();
         System.out.println("Welcome to the World of Zuul!");
         System.out.println("World of Zuul is a text base adventure game.");
-        System.out.println("Type 'help' if you need help.");
+        System.out.println("Type \'"+ CommandWord.HELP.toString() + "\' if you need help.");
 
         System.out.println();
 
@@ -146,9 +146,10 @@ public class Game {
     }
 
     private void printLocationInfo() {
-        System.out.println("You're " +  player.getCurrentRoom().getDescription());
+        System.out.println("You're " + player.getCurrentRoom().getDescription());
         System.out.println();
     }
+
 
     /**
      * Given a command, process (that is: execute) the command.
@@ -158,29 +159,36 @@ public class Game {
      */
     private boolean processCommand(Command command) {
         boolean wantToQuit = false;
+        CommandWord commandWord = command.getCommandWord();
 
-        if (command.isUnknown()) {
-            System.out.println("I don't know what you mean...");
-            return false;
-        }
-
-        String commandWord = command.getCommandWord();
-        if (commandWord.equals("help")) {
-            printHelp();
-        } else if (commandWord.equals("look")) {
-            look();
-        } else if (commandWord.equals("search")) {
-            search();
-        } else if (commandWord.equals("take")) {
-            take(command);
-        } else if (commandWord.equals("drop")) {
-            drop(command);
-        } else if (commandWord.equals("inventory")) {
-            showInventory();
-        } else if (commandWord.equals("go")) {
-            goRoom(command);
-        } else if (commandWord.equals("quit")) {
-            wantToQuit = quit(command);
+        switch (commandWord) {
+            case UNKNOWN:
+                System.out.println("I don't know what you mean...");
+                break;
+            case HELP:
+                printHelp();
+                break;
+            case LOOK:
+                look();
+                break;
+            case SEARCH:
+                search();
+                break;
+            case INVENTORY:
+                showInventory();
+                break;
+            case TAKE:
+                take(command);
+                break;
+            case DROP:
+                drop(command);
+                break;
+            case GO:
+                goRoom(command);
+                break;
+            case QUIT:
+                wantToQuit = quit(command);
+                break;
         }
 
         return wantToQuit;
@@ -261,7 +269,7 @@ public class Game {
         }
     }
 
-    private void showInventory(){
+    private void showInventory() {
         System.out.println(player.getShortItemDescription());
     }
 
