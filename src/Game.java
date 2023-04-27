@@ -101,6 +101,7 @@ public class Game {
         watchTower.addItem(armor, 1);
         eastPlaza.addItem(coin, 2);
         cellar.addItem(coin, 5);
+        entrance.addItem(sword, 1);
 
     }
 
@@ -111,7 +112,7 @@ public class Game {
 
         this.player = new Player("Human", entrance, 20, 5);
         this.troll = new NPC("troll", 20, 5);
-        forest.addNPC(troll, 1);
+        forest.addNPC(troll, 2);
     }
 
     /**
@@ -126,7 +127,7 @@ public class Game {
         boolean finished = false;
         while (!finished) {
             Command command = parser.getCommandWord();
-            finished = processCommand(command);
+            finished = processCommand(command) || !player.isAlive;
         }
         System.out.println("Thank you for playing.  Good bye.");
     }
@@ -245,6 +246,17 @@ public class Game {
         } else {
             player.setCurrentRoom(nextRoom);
             printLocationInfo();
+            printEnemyInfo();
+        }
+    }
+
+    private void printEnemyInfo() {
+        if (player.getCurrentRoom().containsEnemy())
+        {
+            System.out.println("There are enemies in this room:\n");
+            for (NPC enemy: player.getCurrentRoom().getNPCs().keySet()){
+                System.out.println(player.getCurrentRoom().getNPCs().get(enemy) + " " + enemy.getName() + " with " + enemy.getLife()  + " lifepoints each\n");
+            }
         }
     }
 
@@ -292,20 +304,25 @@ public class Game {
 
         for (NPC enemy : player.getCurrentRoom().getNPCs().keySet()){
 
-            if (enemy.getName().equals(enemyName)) {
+            if (enemy.getName().equals(enemyName) && enemy.isAlive()) {
                 enemyFound = true;
                 //player attacks
                 attack = player.attack();
                 enemy.takeDamage(attack);
                 if (attack == 0) System.out.println("You missed");
-                else System.out.println("You damaged " + enemy.getName() + " by " + attack);
+                else System.out.println("You attacked  " + enemy.getName() + " with " + attack + " damage.");
 
                 //enemy attack automatically
                 attack = enemy.attack();
                 player.takeDamage(attack);
                 if (attack == 0) System.out.println(enemy.getName() + " missed");
-                else System.out.println("You damage " + enemy.getName() + " by " + attack);
-
+                else System.out.println(enemy.getName() + " attacked you with " + attack + " damage");
+                System.out.println();
+                //print lifepoints left
+                System.out.println("You have " + player.getLife() + " lifepoints left.");
+                System.out.println(enemy.getName() + " has " + enemy.getLife() + " lifepoints left.");
+                System.out.println();
+                player.getCurrentRoom().checkDeadEnemies();
             }
 
 

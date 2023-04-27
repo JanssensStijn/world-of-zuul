@@ -50,12 +50,9 @@ public class NPC {
         Random randomDamage = new Random();
         int damage = 0;
         int additionalDamage =  0;
-        for (Item item: inventory.keySet()) {
-            if(item.getName().equals("sword")) additionalDamage = 5;
-        }
 
-        if(inventory.containsKey("sword"))
-            damage = randomDamage.nextInt(maxDamage) + additionalDamage;
+        if(inventory.containsKey("sword")) additionalDamage = 5;
+        damage = randomDamage.nextInt(maxDamage) + additionalDamage;
         return damage;
     }
 
@@ -76,4 +73,9 @@ public class NPC {
         this.life = this.maxLife;
         this.maxDamage = maxDamage;
     }
+
+    public HashMap<Item, Integer> dropLoot(){
+        return inventory;
+    }
+    public Item sellItem(String Item)
 }

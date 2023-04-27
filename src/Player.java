@@ -10,6 +10,7 @@ public class Player {
     private int maxLife;
     private int life;
 
+    boolean isAlive = true;
     private int maxDamage;
 
     public Player(String name, Room currentRoom, int maxLife, int maxDamage) {
@@ -100,19 +101,20 @@ public class Player {
         int damage = 0;
         int additionalDamage =  0;
         for (Item item: inventory.keySet()) {
-            if(item.getName().equals("sword")) additionalDamage = 5;
+            if (item.getName().equals("sword")) additionalDamage = 5;
         }
 
-        if(inventory.containsKey("sword"))
+        //if(inventory.containsKey("sword")) additionalDamage = 5;
         damage = randomDamage.nextInt(maxDamage) + additionalDamage;
         return damage;
     }
 
     public int takeDamage(int damage){
-        if(damage > life) life = 0;
+        if(damage > life) {life = 0; isAlive = false;}
         else life -= damage;
         return life;
     }
 
+    public boolean isAlive(){return isAlive;}
     public int getLife(){return life;}
 }

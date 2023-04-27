@@ -149,13 +149,14 @@ public class Room {
 
     }
     public void checkDeadEnemies(){
-        if(!npcs.isEmpty()) {
-            for (NPC npc : npcs.keySet()) {
-                if (!npc.isAlive())
-                    if (npcs.get(npc) > 1) {
-                        npc.resetLife();
-                        npcs.put(npc, npcs.get(npc) - 1);
-                    }
+        for (NPC npc: npcs.keySet()) {
+            if (!npc.isAlive() && npcs.get(npc) > 1 )
+            {
+                npc.resetLife();
+                npcs.put(npc, npcs.get(npc) - 1);
+            }
+            else if (!npc.isAlive() && npcs.get(npc) == 1)
+            {
                 npcs.remove(npc);
             }
         }
