@@ -7,16 +7,19 @@ public class Player {
     private Room currentRoom;
     private HashMap<Item, Integer> inventory;
 
+    private int maxInventoryWeight;
+
     private int maxLife;
     private int life;
 
     boolean isAlive = true;
     private int maxDamage;
 
-    public Player(String name, Room currentRoom, int maxLife, int maxDamage) {
+    public Player(String name, Room currentRoom,int maxWeight, int maxLife, int maxDamage) {
         this.name = name;
         this.currentRoom = currentRoom;
         inventory = new HashMap<>();
+        this.maxInventoryWeight = maxWeight;
         this.maxLife = maxLife;
         this.maxDamage = maxDamage;
         this.life = this.maxLife;
@@ -45,6 +48,27 @@ public class Player {
         return false;
     }
 
+    private Item getItem(String itemName){
+        for (Item item: inventory.keySet()) {
+            if(item.getName().equals(itemName)) return item;
+
+        }
+        return null;
+    }
+
+    public int currentWeight(){
+        int totalWeight = 0;
+        for (Item item :inventory.keySet()) {
+            totalWeight += item.getWeight()* inventory.get(item);
+        }
+        return totalWeight;
+    }
+
+    public boolean canTakeItem(Item item, int amount)
+    {
+        return (maxInventoryWeight >= currentWeight() + (item.getWeight()*amount));
+    }
+
     public boolean take(String itemName) {
         if (currentRoom.hasItem(itemName)) {
             if(hasItem(itemName)){
@@ -58,15 +82,13 @@ public class Player {
     }
 
     public boolean drop(String itemName) {
-        if (this.hasItem(itemName)) {
-            for (Item item : inventory.keySet()) {
-                if (item.getName().equals(itemName)) {
-                    currentRoom.addItem(item, inventory.get(item));
-                    inventory.remove(item);
-                    return true;
-                }
-            }
+        if(inventory.containsKey(getItem(itemName)))
+        {
+            currentRoom.addItem(getItem(itemName), inventory.get(getItem(itemName)));
+            inventory.remove(getItem(itemName)); //do not remove a key while in a hashmap iteration, it will result in error when hashmap has multiple keys
+            return true;
         }
+
         return false;
     }
 
@@ -89,7 +111,7 @@ public class Player {
         else{
             returnString += "following items in your inventory: ";
             for (Item item : inventory.keySet()) {
-                returnString += "\n   " + item.getName() + " {" + inventory.get(item) + "}" + "\n";
+                returnString += "\n   " + item.getName() + " {" + inventory.get(item) + "}";
             }
             return returnString;
         }
@@ -115,6 +137,10 @@ public class Player {
         return life;
     }
 
-    public boolean isAlive(){return isAlive;}
+    public boolean isAlive(){
+        if(life == 0) isAlive = false;
+        else isAlive = true;
+        return isAlive;
+    }
     public int getLife(){return life;}
 }

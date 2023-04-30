@@ -21,7 +21,7 @@ public class Game {
     private Room cottage, forest, court, westPlaza, entrance, blacksmith, eastPlaza, watchTower, lookOut, pub, cellar;
     private Item coin, sword, staff, shield, armor;
 
-    private NPC  troll, smithy, bartender, wizard, guard;
+    private NPC troll, smithy, bartender, wizard, guard;
 
     /**
      * Create the game and initialise its internal map.
@@ -93,7 +93,7 @@ public class Game {
         coin = new Item("coin", "Something you can pay with", 0.01);
         staff = new Item("staff", "a staff that wields great power", 1.2);
         shield = new Item("shield", "a square shield", 2.4);
-        armor = new Item("shield", "the armor of a black knight", 2.4);
+        armor = new Item("armor", "the armor of a black knight", 5.2);
 
         //add items to rooms or characters
         cottage.addItem(staff, 1);
@@ -101,7 +101,10 @@ public class Game {
         watchTower.addItem(armor, 1);
         eastPlaza.addItem(coin, 2);
         cellar.addItem(coin, 5);
+
+        //for test purposes
         entrance.addItem(sword, 1);
+        entrance.addItem(armor, 1);
 
     }
 
@@ -110,7 +113,7 @@ public class Game {
      */
     private void createCharacters() {
 
-        this.player = new Player("Human", entrance, 20, 5);
+        this.player = new Player("Human", entrance,10, 20, 5);
         this.troll = new NPC("troll", 20, 5);
         forest.addNPC(troll, 2);
     }
@@ -125,9 +128,9 @@ public class Game {
         // execute them until the game is over.
 
         boolean finished = false;
-        while (!finished) {
+        while (!finished && player.isAlive) {
             Command command = parser.getCommandWord();
-            finished = processCommand(command) || !player.isAlive;
+            finished = processCommand(command);
         }
         System.out.println("Thank you for playing.  Good bye.");
     }
@@ -139,7 +142,7 @@ public class Game {
         System.out.println();
         System.out.println("Welcome to the World of Zuul!");
         System.out.println("World of Zuul is a text base adventure game.");
-        System.out.println("Type \'"+ CommandWord.HELP.toString() + "\' if you need help.");
+        System.out.println("Type \'" + CommandWord.HELP.toString() + "\' if you need help.");
 
         System.out.println();
 
@@ -191,7 +194,7 @@ public class Game {
                 attack(command);
                 break;
             case GO:
-                if(!player.getCurrentRoom().containsEnemy()) goRoom(command);
+                if (!player.getCurrentRoom().containsEnemy()) goRoom(command);
                 else System.out.println("You can't leave with an enemy on your tail");
                 break;
             case QUIT:
@@ -251,11 +254,10 @@ public class Game {
     }
 
     private void printEnemyInfo() {
-        if (player.getCurrentRoom().containsEnemy())
-        {
-            System.out.println("There are enemies in this room:\n");
-            for (NPC enemy: player.getCurrentRoom().getNPCs().keySet()){
-                System.out.println(player.getCurrentRoom().getNPCs().get(enemy) + " " + enemy.getName() + " with " + enemy.getLife()  + " lifepoints each\n");
+        if (player.getCurrentRoom().containsEnemy()) {
+            System.out.println("There are enemies in this room:");
+            for (NPC enemy : player.getCurrentRoom().getNPCs().keySet()) {
+                System.out.println(player.getCurrentRoom().getNPCs().get(enemy) + " " + enemy.getName() + " with " + enemy.getLife() + " life-points each\n");
             }
         }
     }
@@ -267,10 +269,18 @@ public class Game {
             return;
         }
         String itemName = command.getSecondWord();
-        if (player.take(itemName)) {
-            System.out.println("You took: " + itemName + " {" + player.getCurrentRoom().getNumberOfItem(itemName)+ "}");
-            player.getCurrentRoom().removeItem(player.getCurrentRoom().getItem(itemName));
-        } else {
+
+        if(player.getCurrentRoom().hasItem(itemName))
+        {
+            if(player.canTakeItem(player.getCurrentRoom().getItem(itemName),player.getCurrentRoom().getNumberOfItem(itemName))) {
+                if (player.take(itemName)) {
+                    System.out.println("You took: " + itemName + " {" + player.getCurrentRoom().getNumberOfItem(itemName) + "}");
+                    player.getCurrentRoom().removeItem(player.getCurrentRoom().getItem(itemName));
+                }
+            }
+            else System.out.println("The item is too heavy to add to your inventory");
+        }
+        else {
             System.out.println("There is no item here with the name " + itemName);
         }
     }
@@ -283,51 +293,56 @@ public class Game {
         }
         String itemName = command.getSecondWord();
         if (player.drop(itemName)) {
-            System.out.println("You dropped the item");
+            System.out.println("You dropped the item: " + itemName);
         } else {
-            System.out.println("There is no item here with the name " + itemName);
+            System.out.println("There is no item here with that name");
         }
     }
 
     private void showInventory() {
         System.out.println(player.getShortItemDescription());
     }
+
     private void attack(Command command) {
-        if (!command.hasSecondWord()) {
-            // if there is no second word, we don't know what to drop...
-            System.out.println("Attack what?");
-            return;
-        }
-        String enemyName = command.getSecondWord();
-        int attack = 0;
-        boolean enemyFound = false;
-
-        for (NPC enemy : player.getCurrentRoom().getNPCs().keySet()){
-
-            if (enemy.getName().equals(enemyName) && enemy.isAlive()) {
-                enemyFound = true;
-                //player attacks
-                attack = player.attack();
-                enemy.takeDamage(attack);
-                if (attack == 0) System.out.println("You missed");
-                else System.out.println("You attacked  " + enemy.getName() + " with " + attack + " damage.");
-
-                //enemy attack automatically
-                attack = enemy.attack();
-                player.takeDamage(attack);
-                if (attack == 0) System.out.println(enemy.getName() + " missed");
-                else System.out.println(enemy.getName() + " attacked you with " + attack + " damage");
-                System.out.println();
-                //print lifepoints left
-                System.out.println("You have " + player.getLife() + " lifepoints left.");
-                System.out.println(enemy.getName() + " has " + enemy.getLife() + " lifepoints left.");
-                System.out.println();
-                player.getCurrentRoom().checkDeadEnemies();
+        if (player.isAlive) {
+            if (!command.hasSecondWord()) {
+                // if there is no second word, we don't know what to drop...
+                System.out.println("Attack what?");
+                return;
             }
+            String enemyName = command.getSecondWord();
+            int attack = 0;
+            boolean enemyFound = false;
+
+            for (NPC enemy : player.getCurrentRoom().getNPCs().keySet()) {
+
+                if (enemy.getName().equals(enemyName) && enemy.isAlive()) {
+                    enemyFound = true;
+                    //player attacks
+                    attack = player.attack();
+                    enemy.takeDamage(attack);
+                    if (attack == 0) System.out.println("You missed");
+                    else System.out.println("You attacked  " + enemy.getName() + " with " + attack + " damage.");
+
+                    //enemy attack automatically
+                    attack = enemy.attack();
+                    player.takeDamage(attack);
+                    if (attack == 0) System.out.println(enemy.getName() + " missed");
+                    else System.out.println(enemy.getName() + " attacked you with " + attack + " damage");
+                    System.out.println();
+                    //print life-points left
+                    System.out.println("You have " + player.getLife() + " life-points left.");
+                    System.out.println(enemy.getName() + " has " + enemy.getLife() + " life-points left.");
+                    System.out.println();
+                    player.getCurrentRoom().checkDeadEnemies();
+                }
 
 
+            }
+            if (!enemyFound) System.out.println("There is no enemy with the name " + enemyName);
+            if(!player.isAlive) {System.out.println("You died!"); }
         }
-        if(!enemyFound) System.out.println("There is no enemy with the name " + enemyName);
+        else System.out.println("You can't attack when you're dead.");
     }
 
     /**

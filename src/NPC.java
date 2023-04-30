@@ -2,7 +2,7 @@ import java.util.HashMap;
 import java.util.Random;
 
 /**
- * class for NPC's -- Non Playable Characters
+ * class for NPCs -- Non-Playable Characters
  */
 public class NPC {
     String name;
@@ -77,5 +77,20 @@ public class NPC {
     public HashMap<Item, Integer> dropLoot(){
         return inventory;
     }
-    public Item sellItem(String Item)
+    public Item sellItem(String itemToSell){
+        for (Item item: inventory.keySet()) {
+            if(item.getName().equals(itemToSell)) return item;
+        }
+        return null;
+    }
+    public boolean drop(String itemName) {
+        if(inventory.containsKey(getItem(itemName)))
+        {
+            currentRoom.addItem(getItem(itemName), inventory.get(getItem(itemName)));
+            inventory.remove(getItem(itemName)); //do not remove a key while in a hashmap iteration, it will result in error when hashmap has multiple keys
+            return true;
+        }
+
+        return false;
+    }
 }

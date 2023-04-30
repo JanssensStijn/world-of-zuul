@@ -108,11 +108,7 @@ public class Room {
         return 0;
     }
     public void removeItem(Item itemToBeRemoved){
-        for (Item item : items.keySet()) {
-            if (item == itemToBeRemoved) {
-                items.remove(itemToBeRemoved);
-            }
-        }
+        if(items.containsKey(itemToBeRemoved)) items.remove(itemToBeRemoved);
     }
 
     public String getLongDescription() {
@@ -127,7 +123,7 @@ public class Room {
         if (items.isEmpty()) return returnString + " nothing.";
             else{
             for (Item item : items.keySet()) {
-                returnString += "\n   " + item.getName() + " {" + items.get(item) + "}" + "\n";
+                returnString += "\n   " + item.getName() + " {" + items.get(item) + "}";
             }
             return returnString;
         }
@@ -154,9 +150,12 @@ public class Room {
             {
                 npc.resetLife();
                 npcs.put(npc, npcs.get(npc) - 1);
+                System.out.println("You have defeated 1 " + npc.getName());
+                System.out.println("There are " + npcs.get(npc) + " " + npc.getName() + " left.");
             }
             else if (!npc.isAlive() && npcs.get(npc) == 1)
             {
+                System.out.println("You have defeated the last " + npc.getName());
                 npcs.remove(npc);
             }
         }
