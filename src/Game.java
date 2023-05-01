@@ -102,7 +102,6 @@ public class Game {
 
         //add items to rooms or characters
         cottage.addItem(staff, 1);
-        blacksmith.addItem(sword, 1);
         watchTower.addItem(shield, 1);
         lookOut.addItem(armor, 1);
         eastPlaza.addItem(coin, 2);
@@ -113,14 +112,6 @@ public class Game {
         lookOut.addItem(glintstone, 5);
         westPlaza.addItem(glintstone, 1);
         eastPlaza.addItem(glintstone, 1);
-
-        //for testing only
-        /*entrance.addItem(glintstone, 10);
-        entrance.addItem(sword, 1);
-        entrance.addItem(staff, 1);
-        entrance.addItem(coin, 14);*/
-
-
 
     }
 
@@ -468,12 +459,10 @@ public class Game {
                     System.out.println(enemy.getName() + " has " + enemy.getLife() + " life-points left.");
                     System.out.println();
                     player.getCurrentRoom().checkDeadEnemies();
+                    if(!player.isAlive) {System.out.println("\nYou died!"); return; }
                 }
-
-
             }
             if (!enemyFound) System.out.println("There is no enemy with the name " + enemyName);
-            if(!player.isAlive) {System.out.println("You died!"); }
         }
         else System.out.println("You can't attack when you're dead.");
     }
