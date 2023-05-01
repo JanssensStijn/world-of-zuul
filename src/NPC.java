@@ -77,20 +77,22 @@ public class NPC {
     public HashMap<Item, Integer> dropLoot(){
         return inventory;
     }
+
+    public void addToInventory(Item item, int amountOrPrice){
+        inventory.put(item, amountOrPrice);
+    }
     public Item sellItem(String itemToSell){
         for (Item item: inventory.keySet()) {
             if(item.getName().equals(itemToSell)) return item;
         }
         return null;
     }
-    public boolean drop(String itemName) {
-        if(inventory.containsKey(getItem(itemName)))
-        {
-            currentRoom.addItem(getItem(itemName), inventory.get(getItem(itemName)));
-            inventory.remove(getItem(itemName)); //do not remove a key while in a hashmap iteration, it will result in error when hashmap has multiple keys
-            return true;
-        }
 
-        return false;
+    public void receiveItem(HashMap<Item, Integer> received){
+        for (Item item: received.keySet()) {
+            if(inventory.containsKey(item)) inventory.put(item, inventory.get(item) + received.get(item));
+            else inventory.put(item, received.get(item));
+        }
     }
+
 }

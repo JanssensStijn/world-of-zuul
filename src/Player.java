@@ -69,6 +69,22 @@ public class Player {
         return (maxInventoryWeight >= currentWeight() + (item.getWeight()*amount));
     }
 
+    public boolean tradeItem(Item itemToGet, int amountToGet, Item itemToGive, int amountToGive ) {
+        boolean removeItem = false;
+        for (Item item: inventory.keySet()) {
+            if(inventory.containsKey(itemToGive) && inventory.get(itemToGive) >= amountToGive)
+            {
+                if(inventory.get(itemToGive) > amountToGive) inventory.put(itemToGive, inventory.get(itemToGive) - amountToGive);
+                else inventory.remove(itemToGive);
+
+                if(inventory.containsKey(itemToGet)) inventory.put(itemToGet, inventory.get(itemToGet) + amountToGet);
+                else inventory.put(itemToGet, amountToGet);
+                return true;
+            }
+        }
+        return false;
+    }
+
     public boolean take(String itemName) {
         if (currentRoom.hasItem(itemName)) {
             if(hasItem(itemName)){
@@ -89,6 +105,23 @@ public class Player {
             return true;
         }
 
+        return false;
+    }
+    public HashMap<Item, Integer> giveItemToOther(Item item) {
+        HashMap<Item, Integer> temp = new HashMap<>();
+        if(inventory.containsKey(item))
+        {
+            temp.put(item, inventory.get(item));
+            inventory.remove(item); //do not remove a key while in a hashmap iteration, it will result in error when hashmap has multiple keys
+            return temp;
+        }
+
+        return null;
+    }
+    public boolean checkInventory(Item item, int amount){
+        for (Item itemInInventory: inventory.keySet()) {
+            if(itemInInventory.getName().equals(item.getName()) && inventory.get(itemInInventory) >= amount) return true;
+        }
         return false;
     }
 

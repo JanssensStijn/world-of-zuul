@@ -9,30 +9,27 @@ public class Item {
         this.weight = weight;
     }
 
-    public String getName() {
-        return name;
-    }
-
+    //setters
     public void setName(String name) {
         this.name = name;
     }
-
-    public String getDescription() {
-        return description;
-    }
-
     public void setDescription(String description) {
         this.description = description;
     }
-
-    public double getWeight() {
-        return weight;
-    }
-
     public void setWeight(double weight) {
         this.weight = weight;
     }
 
+    //getters
+    public String getName() {
+        return name;
+    }
+    public String getDescription() {
+        return description;
+    }
+    public double getWeight() {
+        return weight;
+    }
     public String getLongDescription() {
         return this.name + " (" + this.description + ") with weight of " + this.weight + "kg";
     }

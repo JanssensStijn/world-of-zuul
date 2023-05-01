@@ -1,6 +1,6 @@
 public enum CommandWord {
     GO("go"), LOOK("look"), SEARCH("search"), TAKE("take"), DROP("drop"), INVENTORY("inventory"), QUIT("quit"),
-    HELP("help"), UNKNOWN("?"), ATTACK("attack");
+    HELP("help"), UNKNOWN("?"), ATTACK("attack"), TALK("talk"), BUY("buy");
 
     private String commandString;
 

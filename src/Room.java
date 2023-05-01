@@ -8,14 +8,15 @@ import java.util.HashMap;
  * <p>
  * A "Room" represents one location in the scenery of the game.  It is
  * connected to other rooms via exits.  The exits are labelled north,
- * east, south, west.  For each direction, the room stores a reference
+ * east, south, west, up and down.  For each direction, the room stores a reference
  * to the neighboring room, or null if there is no exit in that direction.
  *
- * @author Michael Kölling and David J. Barnes
+ * @author Michael Kölling, David J. Barnes and Stijn Janssens
  * @version 2011.07.31
  */
 
 public class Room {
+    private String name;
     private String description;
     private HashMap<String, Room> exits;
     private HashMap<Item, Integer> items;
@@ -28,21 +29,18 @@ public class Room {
      *
      * @param description The room's description.
      */
-    public Room(String description) {
+    public Room(String name, String description) {
+        this.name = name;
         this.description = description;
         exits = new HashMap<>();
         items = new HashMap<>();
         npcs = new HashMap<>();
     }
+    public String getName (){return name;}
 
     public Room getExit(String direction) {
         return exits.get(direction.toUpperCase());
     }
-
-    public void addItem(Item item, int amount) {
-        items.put(item, amount);
-    }
-
     /**
      * Define an exits of this room.  Every direction either leads
      * to another room or is null (no exit there).
@@ -53,6 +51,21 @@ public class Room {
     public void setExit(Direction direction, Room neighbor) {
         exits.put(direction.name(), neighbor);
     }
+
+    public void addItem(Item item, int amount) {
+        items.put(item, amount);
+    }
+    public void addItemsFromLoot(HashMap<Item, Integer> loot) {
+
+        for (Item item: loot.keySet()) {
+            if(items.containsKey(item)) items.put(item, items.get(item) + loot.get(item));
+                else items.put(item, loot.get(item));
+        }
+    }
+    public void addNPC(NPC npc, int amount){
+        npcs.put(npc, amount);
+    }
+    public HashMap<NPC, Integer> getNPCs(){return npcs;}
 
     /**
      * @return The description of the room.
@@ -109,7 +122,7 @@ public class Room {
     }
     public void removeItem(Item itemToBeRemoved){
         if(items.containsKey(itemToBeRemoved)) items.remove(itemToBeRemoved);
-    }
+    }//do not remove a key while in a hashmap iteration, it will result in error when hashmap has multiple keys
 
     public String getLongDescription() {
         return "You are " + description + "\n"  + getExitString();
@@ -129,16 +142,20 @@ public class Room {
         }
     }
 
-    public void addNPC(NPC npc, int amount){
-        npcs.put(npc, amount);
-    }
-
-    public HashMap<NPC, Integer> getNPCs(){return npcs;}
     public boolean containsEnemy(){
         checkDeadEnemies();
         if(!npcs.isEmpty()){
             for (NPC npc: npcs.keySet()) {
                 if(npc.IsEnemy()) return true;
+            }
+        }
+        return false;
+
+    }
+    public boolean containsfriendly(){
+        if(!npcs.isEmpty()){
+            for (NPC npc: npcs.keySet()) {
+                if(!npc.IsEnemy()) return true;
             }
         }
         return false;
@@ -152,10 +169,12 @@ public class Room {
                 npcs.put(npc, npcs.get(npc) - 1);
                 System.out.println("You have defeated 1 " + npc.getName());
                 System.out.println("There are " + npcs.get(npc) + " " + npc.getName() + " left.");
+                addItemsFromLoot(npc.dropLoot());
             }
             else if (!npc.isAlive() && npcs.get(npc) == 1)
             {
                 System.out.println("You have defeated the last " + npc.getName());
+                addItemsFromLoot(npc.dropLoot());
                 npcs.remove(npc);
             }
         }
