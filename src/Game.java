@@ -115,10 +115,10 @@ public class Game {
         eastPlaza.addItem(glintstone, 1);
 
         //for testing only
-        entrance.addItem(glintstone, 10);
+        /*entrance.addItem(glintstone, 10);
         entrance.addItem(sword, 1);
         entrance.addItem(staff, 1);
-        entrance.addItem(coin, 14);
+        entrance.addItem(coin, 14);*/
 
 
 
