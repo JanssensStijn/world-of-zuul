@@ -143,7 +143,7 @@ public class Game {
         // execute them until the game is over.
 
         boolean finished = false;
-        while (!finished && player.isAlive && stage != 4) {
+        while (!finished && player.isAlive() && stage != 4) {
             Command command = parser.getCommandWord();
             finished = processCommand(command);
         }
@@ -397,10 +397,10 @@ public class Game {
         if(player.getCurrentRoom().hasItem(itemName))
         {
             if(player.canTakeItem(player.getCurrentRoom().getItem(itemName),player.getCurrentRoom().getNumberOfItem(itemName))) {
-                if (player.take(itemName)) {
+                player.addItem(player.getCurrentRoom().getItem(itemName),player.getCurrentRoom().getNumberOfItem(itemName));
                     System.out.println("You took: " + itemName + " {" + player.getCurrentRoom().getNumberOfItem(itemName) + "}");
                     player.getCurrentRoom().removeItem(player.getCurrentRoom().getItem(itemName));
-                }
+
             }
             else System.out.println("The item is too heavy to add to your inventory");
         }
@@ -416,11 +416,11 @@ public class Game {
             return;
         }
         String itemName = command.getSecondWord();
-        if (player.drop(itemName)) {
+        /*if (player.drop(itemName)) {
             System.out.println("You dropped the item: " + itemName);
         } else {
             System.out.println("There is no item here with that name");
-        }
+        }*/
     }
 
     private void showInventory() {
@@ -428,7 +428,7 @@ public class Game {
     }
 
     private void attack(Command command) {
-        if (player.isAlive) {
+        if (player.isAlive()) {
             if (!command.hasSecondWord()) {
                 // if there is no second word, we don't know what to drop...
                 System.out.println("Attack what?");
@@ -459,7 +459,7 @@ public class Game {
                     System.out.println(enemy.getName() + " has " + enemy.getLife() + " life-points left.");
                     System.out.println();
                     player.getCurrentRoom().checkDeadEnemies();
-                    if(!player.isAlive) {System.out.println("\nYou died!"); return; }
+                    if(!player.isAlive()) {System.out.println("\nYou died!"); return; }
                 }
             }
             if (!enemyFound) System.out.println("There is no enemy with the name " + enemyName);

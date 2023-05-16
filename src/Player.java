@@ -2,35 +2,22 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 
-public class Player {
-    private String name;
+public class Player extends Fighter{
     private Room currentRoom;
-    private HashMap<Item, Integer> inventory;
 
     private int maxInventoryWeight;
 
     private int maxLife;
     private int life;
-
-    boolean isAlive = true;
     private int maxDamage;
 
     public Player(String name, Room currentRoom,int maxWeight, int maxLife, int maxDamage) {
-        this.name = name;
+        super(name, maxLife, maxDamage);
         this.currentRoom = currentRoom;
-        inventory = new HashMap<>();
         this.maxInventoryWeight = maxWeight;
         this.maxLife = maxLife;
         this.maxDamage = maxDamage;
         this.life = this.maxLife;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public Room getCurrentRoom() {
@@ -41,97 +28,60 @@ public class Player {
         this.currentRoom = currentRoom;
     }
 
-    private boolean hasItem(String name) {
-        for (Item item : inventory.keySet()) {
-            if (item.getName().equals(name)) return true;
-        }
-        return false;
-    }
-
-    private Item getItem(String itemName){
-        for (Item item: inventory.keySet()) {
-            if(item.getName().equals(itemName)) return item;
-
-        }
-        return null;
-    }
-
     public int currentWeight(){
         int totalWeight = 0;
-        for (Item item :inventory.keySet()) {
-            totalWeight += item.getWeight()* inventory.get(item);
+        for (Item item :getInventory().keySet()) {
+            totalWeight += item.getWeight()* getInventory().get(item);
         }
         return totalWeight;
     }
 
-    public boolean canTakeItem(Item item, int amount)
-    {
+    public boolean canTakeItem(Item item, int amount){
         return (maxInventoryWeight >= currentWeight() + (item.getWeight()*amount));
     }
 
     public boolean tradeItem(Item itemToGet, int amountToGet, Item itemToGive, int amountToGive ) {
         boolean removeItem = false;
-        for (Item item: inventory.keySet()) {
-            if(inventory.containsKey(itemToGive) && inventory.get(itemToGive) >= amountToGive)
+        for (Item item: getInventory().keySet()) {
+            if(getInventory().containsKey(itemToGive) && getInventory().get(itemToGive) >= amountToGive)
             {
-                if(inventory.get(itemToGive) > amountToGive) inventory.put(itemToGive, inventory.get(itemToGive) - amountToGive);
-                else inventory.remove(itemToGive);
+                if(getInventory().get(itemToGive) > amountToGive) getInventory().put(itemToGive, getInventory().get(itemToGive) - amountToGive);
+                else getInventory().remove(itemToGive);
 
-                if(inventory.containsKey(itemToGet)) inventory.put(itemToGet, inventory.get(itemToGet) + amountToGet);
-                else inventory.put(itemToGet, amountToGet);
+                if(getInventory().containsKey(itemToGet)) getInventory().put(itemToGet, getInventory().get(itemToGet) + amountToGet);
+                else getInventory().put(itemToGet, amountToGet);
                 return true;
             }
         }
         return false;
     }
 
-    public boolean take(String itemName) {
-        if (currentRoom.hasItem(itemName)) {
-            if(hasItem(itemName)){
-                inventory.put(currentRoom.getItem(itemName), inventory.get(currentRoom.getItem(itemName)) + currentRoom.getNumberOfItem(itemName));
-            }
-            else inventory.put(currentRoom.getItem(itemName), currentRoom.getNumberOfItem(itemName));
 
-            return true;
-        }
-        return false;
-    }
-
-    public boolean drop(String itemName) {
-        if(inventory.containsKey(getItem(itemName)))
-        {
-            currentRoom.addItem(getItem(itemName), inventory.get(getItem(itemName)));
-            inventory.remove(getItem(itemName)); //do not remove a key while in a hashmap iteration, it will result in error when hashmap has multiple keys
-            return true;
-        }
-
-        return false;
-    }
     public HashMap<Item, Integer> giveItemToOther(Item item) {
         HashMap<Item, Integer> temp = new HashMap<>();
-        if(inventory.containsKey(item))
+        if(getInventory().containsKey(item))
         {
-            temp.put(item, inventory.get(item));
-            inventory.remove(item); //do not remove a key while in a hashmap iteration, it will result in error when hashmap has multiple keys
+            temp.put(item, getInventory().get(item));
+            getInventory().remove(item); //do not remove a key while in a hashmap iteration, it will result in error when hashmap has multiple keys
             return temp;
         }
 
         return null;
     }
     public boolean checkInventory(Item item, int amount){
-        for (Item itemInInventory: inventory.keySet()) {
-            if(itemInInventory.getName().equals(item.getName()) && inventory.get(itemInInventory) >= amount) return true;
+        for (Item itemInInventory: getInventory().keySet()) {
+            if(itemInInventory.getName().equals(item.getName()) && getInventory().get(itemInInventory) >= amount) return true;
         }
         return false;
     }
 
     public String getLongDescription() {
         String desc = "There are ";
-        if (inventory.isEmpty()) {
+        if (getInventory().isEmpty()) {
             desc += "currently no items in your inventory";
         } else {
             desc += "following items in your inventory: ";
-            for (Item item : inventory.keySet()) {
+            for (Item item : getInventory().keySet()) {
                 desc += "\n   " + item.getLongDescription();
             }
         }
@@ -140,40 +90,18 @@ public class Player {
 
     public String getShortItemDescription() {
         String returnString = "There are ";
-        if (inventory.isEmpty()) return returnString + "currently no items in your inventory";
+        if (getInventory().isEmpty()) return returnString + "currently no items in your inventory";
         else{
             returnString += "following items in your inventory: ";
-            for (Item item : inventory.keySet()) {
-                returnString += "\n   " + item.getName() + " {" + inventory.get(item) + "}";
+            for (Item item : getInventory().keySet()) {
+                returnString += "\n   " + item.getName() + " {" + getInventory().get(item) + "}";
             }
             return returnString;
         }
     }
 
-    public int attack()
-    {
-        Random randomDamage = new Random();
-        int damage = 0;
-        int additionalDamage =  0;
-        for (Item item: inventory.keySet()) {
-            if (item.getName().equals("sword")) additionalDamage = 5;
-        }
 
-        //if(inventory.containsKey("sword")) additionalDamage = 5;
-        damage = randomDamage.nextInt(maxDamage) + additionalDamage;
-        return damage;
-    }
 
-    public int takeDamage(int damage){
-        if(damage > life) {life = 0; isAlive = false;}
-        else life -= damage;
-        return life;
-    }
 
-    public boolean isAlive(){
-        if(life == 0) isAlive = false;
-        else isAlive = true;
-        return isAlive;
-    }
-    public int getLife(){return life;}
+
 }
