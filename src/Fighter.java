@@ -1,6 +1,7 @@
+import java.util.HashMap;
 import java.util.Random;
 
-public class Fighter extends Creatures{
+public class Fighter extends NonFighter {
     private int life;
     private int maxLife;
     private int maxDamage;
@@ -14,30 +15,29 @@ public class Fighter extends Creatures{
     }
 
     public int getLife(){return life;}
-    public void died(){isAlive = false;}
-
+    public void resetLife(){life = maxLife;isAlive = true;}
     public boolean isAlive(){
-        if(life == 0) died();
+        if(life == 0) isAlive = false;
         return isAlive;
     }
+    public void died(){isAlive = false;}
 
-    public int attack()
-    {
+    public int attack() {
         Random randomDamage = new Random();
         int damage = 0;
         int additionalDamage =  0;
         for (Item item: getInventory().keySet()) {
-            if (item.getName().equals("sword")) additionalDamage = 5;
+            if (item.getName().equals("sword")){ additionalDamage = 5;break;}
         }
 
-        //if(inventory.containsKey("sword")) additionalDamage = 5;
         damage = randomDamage.nextInt(maxDamage) + additionalDamage;
         return damage;
     }
 
-    public int takeDamage(int damage){
-        if(damage > life) {life = 0; died();}
+    public void takeDamage(int damage){
+        if(damage > life) {life = 0; isAlive();}
         else life -= damage;
-        return life;
     }
+
+    public HashMap<Item, Integer> dropLoot(){return getInventory();}
 }

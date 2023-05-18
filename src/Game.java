@@ -22,7 +22,8 @@ public class Game {
     private Room cottage, forest, court, westPlaza, entrance, blacksmith, eastPlaza, watchTower, lookOut, pub, cellar;
     private Item coin, sword, staff, shield, armor, glintstone, beer;
 
-    private NPC troll, smithy, bartender, wizard, stranger;
+    private NonFighter smithy, bartender, wizard, stranger;
+    private Fighter troll;
     private int stage;
 
     /**
@@ -30,8 +31,8 @@ public class Game {
      */
     public Game() {
         createRooms();
-        createItems();
         createCharacters();
+        createItems();
         parser = new Parser();
         stage = 1;
     }
@@ -113,6 +114,11 @@ public class Game {
         westPlaza.addItem(glintstone, 1);
         eastPlaza.addItem(glintstone, 1);
 
+        smithy.take(sword, 1);
+        bartender.take(beer, 1);
+
+        player.take(glintstone, 10);
+        player.take(coin, 20);
     }
 
     /**
@@ -121,16 +127,16 @@ public class Game {
     private void createCharacters() {
 
         this.player = new Player("Human", entrance,10, 20, 5);
-        this.troll = new NPC("troll", 20, 5);
-        this.wizard = new NPC("wizard");
-        this.smithy = new NPC("smithy");
-        this.bartender = new NPC("bartender");
-        this.stranger = new NPC("stranger");
-        entrance.addNPC(stranger, 1);
-        court.addNPC(wizard,1);
-        blacksmith.addNPC(smithy,1);
-        pub.addNPC(bartender,1);
-        forest.addNPC(troll, 2);
+        this.troll = new Fighter("troll", 20, 5);
+        this.wizard = new NonFighter("wizard");
+        this.smithy = new NonFighter("smithy");
+        this.bartender = new NonFighter("bartender");
+        this.stranger = new NonFighter("stranger");
+        entrance.addFriendly(stranger, 1);
+        court.addFriendly(wizard,1);
+        blacksmith.addFriendly(smithy,1);
+        pub.addFriendly(bartender,1);
+        forest.addEnemy(troll, 2);
     }
 
     /**
@@ -157,11 +163,11 @@ public class Game {
         System.out.println();
         System.out.println("Welcome to the World of Zuul!");
         System.out.println("World of Zuul is a text base adventure game.");
-        System.out.println("Type \'" + CommandWord.HELP.toString() + "\' if you need help.");
+        System.out.println("Type '" + CommandWord.HELP + "' if you need help.");
 
         System.out.println();
 
-        System.out.println(player.getLongDescription());
+        player.showInventory();
         System.out.println();
         printLocationInfo();
     }
@@ -190,13 +196,10 @@ public class Game {
                 printHelp();
                 break;
             case LOOK:
-                look();
+                look(command);
                 break;
             case SEARCH:
                 search();
-                break;
-            case INVENTORY:
-                showInventory();
                 break;
             case TAKE:
                 take(command);
@@ -208,7 +211,7 @@ public class Game {
                 attack(command);
                 break;
             case GO:
-                if (!player.getCurrentRoom().containsEnemy()) goRoom(command);
+                if (!player.getCurrentRoom().containsEnemies()) goRoom(command);
                 else System.out.println("You can't leave with an enemy on your tail");
                 break;
             case TALK:
@@ -234,15 +237,28 @@ public class Game {
                 return;
             }
             String itemName = command.getSecondWord();
-            if (player.getCurrentRoom() == blacksmith && itemName.equals(sword.getName())) {
-                if (player.tradeItem(sword, 1, coin, 5)) System.out.println("You bought a sword.\n");
+            if (player.getCurrentRoom() == blacksmith && !smithy.checkInventory(sword, 1))
+                System.out.println("You are out of luck, everything is sold out.\n");
+            else if (player.getCurrentRoom() == blacksmith && itemName.equals(sword.getName())) {
+                if (player.checkInventory(coin, 5)){
+                    smithy.take(player.drop(coin,5));
+                    player.take(smithy.drop(sword, 1));
+                    System.out.println("You bought a sword.\n");
+                }
                 else System.out.println("You don't have enough coin.\n");
-            } else if (player.getCurrentRoom() == pub && itemName.equals(beer.getName())) {
-                if (player.tradeItem(beer, 1, coin, 2)) System.out.println("You bought a beer.\n");
+            }
+            else if (player.getCurrentRoom() == pub && !bartender.checkInventory(beer, 1))
+                System.out.println("You are out of luck, everything is sold out.\n");
+            else  if (player.getCurrentRoom() == pub && itemName.equals(beer.getName())) {
+                if (player.checkInventory(coin, 2)){
+                    bartender.take(player.drop(coin,2));
+                    player.take(bartender.drop(beer, 1));
+                    System.out.println("You bought a beer.\n");
+                }
                 else System.out.println("You don't have enough coin.\n");
-            } else System.out.println("There's nothing being sold with that name.\n");
+            } else System.out.println("We don't sell that\n");
         }
-        else System.out.println("You can't buy anything here (yet).\n");
+        else talk();
     }
 
     // implementations of user commands:
@@ -260,13 +276,33 @@ public class Game {
         System.out.println();
     }
 
-    private void look() {
-        System.out.println(player.getCurrentRoom().getLongDescription());
-        System.out.println("\nFollowing characters are present in the room: ");
-        if(player.getCurrentRoom().containsfriendly()){
-            for ( NPC npc: player.getCurrentRoom().getNPCs().keySet()) {
-                System.out.println(npc.getName() + "\n");
-            }
+    private void look(Command command) {
+        if (!command.hasSecondWord()) {
+            // if there is no second word, we don't know what to take...
+            System.out.println("Look where?");
+            return;
+        }
+        String whereToLook = command.getSecondWord();
+        switch (whereToLook) {
+            case "room":
+                System.out.println(player.getCurrentRoom().getLongDescription());
+                System.out.println("\nFollowing characters are present in the room: ");
+                if(player.getCurrentRoom().containsFriendly()){
+                    for ( NonFighter nonFighter : player.getCurrentRoom().getFriendlies().keySet()) {
+                        System.out.println(nonFighter.getName() + "\n");
+                    }
+                }
+                if(player.getCurrentRoom().containsEnemies()){
+                    player.getCurrentRoom().printEnemyInfo();
+                    /*for ( Fighter enemy : player.getCurrentRoom().getEnemies().keySet()) {
+                        System.out.println(enemy.getName() + " {" + player.getCurrentRoom().getEnemies().get(enemy) + "}\n");
+                    }*/
+                }
+                break;
+            case "inventory":
+                player.showInventory();
+                break;
+            default: System.out.println("You can't look at that");
         }
     }
 
@@ -295,7 +331,7 @@ public class Game {
         } else {
             player.setCurrentRoom(nextRoom);
             printLocationInfo();
-            printEnemyInfo();
+            player.getCurrentRoom().printEnemyInfo();
         }
     }
     private void talk(){
@@ -324,7 +360,7 @@ public class Game {
                     break;
                     case 2: System.out.println("Wizard: Did you collect the glintstones yet?");sleep();
                         if(player.checkInventory(glintstone, 10)){
-                            wizard.receiveItem(player.giveItemToOther(glintstone));
+                            wizard.take(player.drop(glintstone,10));
                             System.out.println("Wizard: Thanks for bringing me the glintstone");sleep();
                             System.out.println("Wizard: All I need now is my staff. Where is it?");sleep();
                             System.out.println("Wizard: Oh no, I forgot it at home");sleep();
@@ -339,7 +375,7 @@ public class Game {
                     break;
                     case 3: System.out.println("Wizard: Have you found the staff?");sleep();
                         if(player.checkInventory(staff, 1)){
-                            wizard.receiveItem(player.giveItemToOther(staff));
+                            wizard.take(player.drop(staff));
                             System.out.println("Wizard: Thanks for bringing me my staff");sleep();
                             System.out.println("Wizard: I didn't really need it for the spell");sleep();
                             System.out.println("Wizard: Most of the time I just use it as a walking stick.");sleep();
@@ -370,21 +406,13 @@ public class Game {
                 }
                 break;
             default:
-                System.out.println("There's no one to talk.\n");
+                System.out.println("There's no one to talk to.\n");
         }
     }
     private void sleep(){
         try {TimeUnit.SECONDS.sleep(1);} catch (InterruptedException e) { throw new RuntimeException(e);}
     }
     private void nextStage(){stage ++;}
-    private void printEnemyInfo() {
-        if (player.getCurrentRoom().containsEnemy()) {
-            System.out.println("There are enemies in this room:");
-            for (NPC enemy : player.getCurrentRoom().getNPCs().keySet()) {
-                System.out.println(player.getCurrentRoom().getNPCs().get(enemy) + " " + enemy.getName() + " with " + enemy.getLife() + " life-points each\n");
-            }
-        }
-    }
 
     private void take(Command command) {
         if (!command.hasSecondWord()) {
@@ -392,21 +420,9 @@ public class Game {
             System.out.println("Take what?");
             return;
         }
+
         String itemName = command.getSecondWord();
-
-        if(player.getCurrentRoom().hasItem(itemName))
-        {
-            if(player.canTakeItem(player.getCurrentRoom().getItem(itemName),player.getCurrentRoom().getNumberOfItem(itemName))) {
-                player.addItem(player.getCurrentRoom().getItem(itemName),player.getCurrentRoom().getNumberOfItem(itemName));
-                    System.out.println("You took: " + itemName + " {" + player.getCurrentRoom().getNumberOfItem(itemName) + "}");
-                    player.getCurrentRoom().removeItem(player.getCurrentRoom().getItem(itemName));
-
-            }
-            else System.out.println("The item is too heavy to add to your inventory");
-        }
-        else {
-            System.out.println("There is no item here with the name " + itemName);
-        }
+        player.takeAll(itemName);
     }
 
     private void drop(Command command) {
@@ -415,17 +431,12 @@ public class Game {
             System.out.println("Drop what?");
             return;
         }
+
         String itemName = command.getSecondWord();
-        /*if (player.drop(itemName)) {
-            System.out.println("You dropped the item: " + itemName);
-        } else {
-            System.out.println("There is no item here with that name");
-        }*/
+        player.getCurrentRoom().addItemsFromLoot(player.drop(itemName));
     }
 
-    private void showInventory() {
-        System.out.println(player.getShortItemDescription());
-    }
+
 
     private void attack(Command command) {
         if (player.isAlive()) {
@@ -435,10 +446,10 @@ public class Game {
                 return;
             }
             String enemyName = command.getSecondWord();
-            int attack = 0;
+            int attack;
             boolean enemyFound = false;
 
-            for (NPC enemy : player.getCurrentRoom().getNPCs().keySet()) {
+            for (Fighter enemy : player.getCurrentRoom().getEnemies().keySet()) {
 
                 if (enemy.getName().equals(enemyName) && enemy.isAlive()) {
                     enemyFound = true;
@@ -458,8 +469,8 @@ public class Game {
                     System.out.println("You have " + player.getLife() + " life-points left.");
                     System.out.println(enemy.getName() + " has " + enemy.getLife() + " life-points left.");
                     System.out.println();
-                    player.getCurrentRoom().checkDeadEnemies();
                     if(!player.isAlive()) {System.out.println("\nYou died!"); return; }
+                    player.getCurrentRoom().checkDeadEnemies();
                 }
             }
             if (!enemyFound) System.out.println("There is no enemy with the name " + enemyName);

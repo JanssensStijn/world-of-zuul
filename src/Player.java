@@ -1,93 +1,61 @@
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Random;
 
 public class Player extends Fighter{
     private Room currentRoom;
-
     private int maxInventoryWeight;
 
-    private int maxLife;
-    private int life;
-    private int maxDamage;
-
-    public Player(String name, Room currentRoom,int maxWeight, int maxLife, int maxDamage) {
+    public Player(String name, Room currentRoom, int maxWeight, int maxLife, int maxDamage) {
         super(name, maxLife, maxDamage);
         this.currentRoom = currentRoom;
         this.maxInventoryWeight = maxWeight;
-        this.maxLife = maxLife;
-        this.maxDamage = maxDamage;
-        this.life = this.maxLife;
     }
 
     public Room getCurrentRoom() {
         return currentRoom;
     }
-
     public void setCurrentRoom(Room currentRoom) {
         this.currentRoom = currentRoom;
     }
-
-    public int currentWeight(){
+    public int getCurrentWeight(){
         int totalWeight = 0;
         for (Item item :getInventory().keySet()) {
             totalWeight += item.getWeight()* getInventory().get(item);
         }
         return totalWeight;
     }
-
     public boolean canTakeItem(Item item, int amount){
-        return (maxInventoryWeight >= currentWeight() + (item.getWeight()*amount));
+        return (maxInventoryWeight >= getCurrentWeight() + (item.getWeight()*amount));
     }
 
-    public boolean tradeItem(Item itemToGet, int amountToGet, Item itemToGive, int amountToGive ) {
-        boolean removeItem = false;
-        for (Item item: getInventory().keySet()) {
-            if(getInventory().containsKey(itemToGive) && getInventory().get(itemToGive) >= amountToGive)
-            {
-                if(getInventory().get(itemToGive) > amountToGive) getInventory().put(itemToGive, getInventory().get(itemToGive) - amountToGive);
-                else getInventory().remove(itemToGive);
-
-                if(getInventory().containsKey(itemToGet)) getInventory().put(itemToGet, getInventory().get(itemToGet) + amountToGet);
-                else getInventory().put(itemToGet, amountToGet);
-                return true;
-            }
+    public void take(Item item, int amount) {
+        if(canTakeItem(item,amount)) {
+            HashMap<Item, Integer> temp = new HashMap<>();
+            temp.put(item, amount);
+            super.take(temp);
         }
-        return false;
+        else System.out.println("The " + item.getName() + " is too heavy.");
     }
 
-
-    public HashMap<Item, Integer> giveItemToOther(Item item) {
-        HashMap<Item, Integer> temp = new HashMap<>();
-        if(getInventory().containsKey(item))
-        {
-            temp.put(item, getInventory().get(item));
-            getInventory().remove(item); //do not remove a key while in a hashmap iteration, it will result in error when hashmap has multiple keys
-            return temp;
-        }
-
-        return null;
+    private void takeAll(Item item){
+        take(item, getCurrentRoom().getNumberOfItem(item.getName()));
     }
-    public boolean checkInventory(Item item, int amount){
-        for (Item itemInInventory: getInventory().keySet()) {
-            if(itemInInventory.getName().equals(item.getName()) && getInventory().get(itemInInventory) >= amount) return true;
-        }
-        return false;
+    public void takeAll(String itemName){
+        if(getCurrentRoom().hasItem(itemName))
+            takeAll(getCurrentRoom().getItem(itemName));
+        else System.out.println("There is no item with that name");
     }
-
-    public String getLongDescription() {
+    public void showInventory() {
         String desc = "There are ";
         if (getInventory().isEmpty()) {
             desc += "currently no items in your inventory";
         } else {
             desc += "following items in your inventory: ";
             for (Item item : getInventory().keySet()) {
-                desc += "\n   " + item.getLongDescription();
+                desc += "\n   " + item.getName() + " {" + getInventory().get(item) + "}" + item.getLongDescription();
             }
         }
-        return desc;
+        System.out.println(desc);
     }
-
     public String getShortItemDescription() {
         String returnString = "There are ";
         if (getInventory().isEmpty()) return returnString + "currently no items in your inventory";
@@ -99,9 +67,5 @@ public class Player extends Fighter{
             return returnString;
         }
     }
-
-
-
-
 
 }
