@@ -16,7 +16,7 @@ public class CommandWords {
 
     /*** Constructor - initialise the command words.*/
     public CommandWords() {
-        validCommands = new HashMap<String, CommandWord>();
+        validCommands = new HashMap<>();
         for (CommandWord command : CommandWord.values()) {
             if (command != CommandWord.UNKNOWN) {
                 validCommands.put(command.toString(), command);
@@ -31,21 +31,12 @@ public class CommandWords {
      * false if it isn't.
      */
     public boolean isCommand(String aString) {
-        if (validCommands.containsKey(aString)) return true;
+        return validCommands.containsKey(aString);
         // if we get here, the string was not found in the commands
-        return false;
     }
 
     public CommandWord getCommand(String aString) {
         if (validCommands.containsKey(aString)) return validCommands.get(aString);
         return CommandWord.UNKNOWN;
-    }
-
-    public String showAll() {
-        String show = "";
-        for (String command : validCommands.keySet()) {
-            show += command + " ";
-        }
-        return show;
     }
 }
