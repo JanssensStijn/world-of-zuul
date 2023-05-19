@@ -20,7 +20,7 @@ public class Game {
     private Parser parser;
     private Player player;
     private Room cottage, forest, court, westPlaza, entrance, blacksmith, eastPlaza, watchTower, lookOut, pub, cellar;
-    private Item coin, sword, staff, shield, armor, glintstone, beer;
+    private Item coin, sword, staff, armor, glintstone, beer, map, brownie;
 
     private NonFighter smithy, bartender, wizard, stranger;
     private Fighter troll;
@@ -96,15 +96,16 @@ public class Game {
         sword = new Item("sword", "A pointy and sharp thing", 2.3);
         coin = new Item("coin", "Something you can pay with", 0.01);
         staff = new Item("staff", "a staff that wields great power", 1.2);
-        shield = new Item("shield", "a square shield", 2.4);
+        map = new Item("map", "a map of the town", 0.1);
         armor = new Item("armor", "the armor of a black knight", 15.2);
         glintstone = new Item("glintstone", "To you it's just a shine blue rock", 0.3);
         beer = new Item("beer", "an alcoholic drink", 0.3);
-
+        brownie = new Item("brownie", "brownie with magical powers", 0.2);
         //add items to rooms or characters
         cottage.addItem(staff, 1);
-        watchTower.addItem(shield, 1);
+        watchTower.addItem(map, 1);
         lookOut.addItem(armor, 1);
+        lookOut.addItem(brownie, 1);
         eastPlaza.addItem(coin, 2);
         cellar.addItem(coin, 5);
 
@@ -116,9 +117,6 @@ public class Game {
 
         smithy.take(sword, 1);
         bartender.take(beer, 1);
-
-        player.take(glintstone, 10);
-        player.take(coin, 20);
     }
 
     /**
@@ -126,7 +124,7 @@ public class Game {
      */
     private void createCharacters() {
 
-        this.player = new Player("Human", entrance,10, 20, 5);
+        this.player = new Player("Player", entrance,10, 20, 5);
         this.troll = new Fighter("troll", 20, 5);
         this.wizard = new NonFighter("wizard");
         this.smithy = new NonFighter("smithy");
@@ -220,12 +218,27 @@ public class Game {
             case BUY:
                 buy(command);
                 break;
+            case BACK:
+                back();
+                break;
+            case EAT:
+                eat();
+                break;
             case QUIT:
                 wantToQuit = quit(command);
                 break;
         }
 
         return wantToQuit;
+    }
+
+    private void eat() {
+        if (player.checkInventory(brownie)) {
+            player.getInventory().remove(brownie);
+            System.out.println(player.getName() + " ate the brownie.");
+            System.out.println(player.getName() + " begins to feel stronger.");
+            player.increaseMaxInventoryWeight(10);
+        }
     }
 
     private void buy(Command command) {
@@ -294,13 +307,14 @@ public class Game {
                 }
                 if(player.getCurrentRoom().containsEnemies()){
                     player.getCurrentRoom().printEnemyInfo();
-                    /*for ( Fighter enemy : player.getCurrentRoom().getEnemies().keySet()) {
-                        System.out.println(enemy.getName() + " {" + player.getCurrentRoom().getEnemies().get(enemy) + "}\n");
-                    }*/
                 }
                 break;
             case "inventory":
                 player.showInventory();
+                break;
+            case "map":
+                if(player.checkInventory(map)) showMap();
+                else System.out.println("You don't have a map.");
                 break;
             default: System.out.println("You can't look at that");
         }
@@ -323,17 +337,46 @@ public class Game {
 
         String direction = command.getSecondWord();
 
+
         // Try to leave current room.
         Room nextRoom = player.getCurrentRoom().getExit(direction);
 
         if (nextRoom == null) {
             System.out.println("There is no door!");
         } else {
+            player.roomHistory.add(player.getCurrentRoom()); //store the current room in stack
             player.setCurrentRoom(nextRoom);
             printLocationInfo();
             player.getCurrentRoom().printEnemyInfo();
         }
     }
+
+    private void back(){
+
+        if (player.roomHistory.empty()) {
+            System.out.println("You can't go back anymore.");
+        } else {
+            Room previousRoom = player.roomHistory.pop();
+            player.setCurrentRoom(previousRoom);
+            printLocationInfo();
+            player.getCurrentRoom().printEnemyInfo();
+        }
+    }
+    private void showMap(){
+        System.out.println(
+                "                                  ▌▀▀▀▀▀▀▀▐       ▌▀▀▀▀▀▀▀▀▀▀▀▀▐\n"+
+                "                                  ▌ COURT ▐       ▌ BLACKSMITH ▐\n"+
+                "                                  ▌▄▄▄▄▄▄▄▐       ▌▄▄▄▄▄▄▄▄▄▄▄▄▐\n"+
+                "                                      ║                  ║\n" +
+                "▌▀▀▀▀▀▀▀▀▀▐     ▌▀▀▀▀▀▀▀▀▐     ▌▀▀▀▀▀▀▀▀▀▀▀▀▐     ▌▀▀▀▀▀▀▀▀▀▀▀▀▐     ▌▀▀▀▀▀▀▀▐     ▌▀▀▀▀▀▀▀▀▀▀▐\n" +
+                "▌ COTTAGE ▐═════▌ FOREST ▐═════▌ WEST PLAZA ▐═════▌ EAST PLAZA ▐═════▌ PUB ▼ ▐═════▌ ▲ CELLAR ▐\n" +
+                "▌▄▄▄▄▄▄▄▄▄▐     ▌▄▄▄▄▄▄▄▄▐     ▌▄▄▄▄▄▄▄▄▄▄▄▄▐     ▌▄▄▄▄▄▄▄▄▄▄▄▄▐     ▌▄▄▄▄▄▄▄▐     ▌▄▄▄▄▄▄▄▄▄▄▐\n" +
+                "                                                         ║\n"+
+                "                                                 ▌▀▀▀▀▀▀▀▀▀▀▀▀▀▀▐     ▌▀▀▀▀▀▀▀▀▀▀▀▀▐\n" +
+                "                                                 ▌ WATCHTOWER ▲ ▐═════▌ ▼ LOOK-OUT ▐\n" +
+                "                                                 ▌▄▄▄▄▄▄▄▄▄▄▄▄▄▄▐     ▌▄▄▄▄▄▄▄▄▄▄▄▄▐"
+        );
+    }//print an ascii version of the map
     private void talk(){
         interactions();
     }
@@ -435,8 +478,6 @@ public class Game {
         String itemName = command.getSecondWord();
         player.getCurrentRoom().addItemsFromLoot(player.drop(itemName));
     }
-
-
 
     private void attack(Command command) {
         if (player.isAlive()) {

@@ -1,15 +1,24 @@
 import java.util.HashMap;
+import java.util.Stack;
 
 public class Player extends Fighter{
     private Room currentRoom;
+
+
+
     private int maxInventoryWeight;
+
+    Stack<Room> roomHistory;
 
     public Player(String name, Room currentRoom, int maxWeight, int maxLife, int maxDamage) {
         super(name, maxLife, maxDamage);
         this.currentRoom = currentRoom;
         this.maxInventoryWeight = maxWeight;
+        roomHistory = new Stack<>();
     }
-
+    public void increaseMaxInventoryWeight(int extraWeight) {
+        this.maxInventoryWeight += extraWeight;
+    }
     public Room getCurrentRoom() {
         return currentRoom;
     }
