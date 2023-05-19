@@ -15,18 +15,10 @@ public class NonFighter {
 
     public HashMap<Item, Integer> getInventory(){return inventory;}
 
-    public Item getItem(String itemName){
-        for (Item item: getInventory().keySet()) {
-            if(item.getName().equals(itemName)) return item;
-
-        }
-        return null;
-    }
-
-    public boolean checkInventory(Item item){return checkInventory(item,0);}
+    public boolean checkInventory(Item item){return checkInventory(item,1);}
     public boolean checkInventory(Item item, int amount){
         for (Item itemInInventory: getInventory().keySet()) {
-            if(itemInInventory.getName().equals(item.getName()) && getInventory().get(itemInInventory) >= amount) return true;
+            if(itemInInventory.toString().equals(item.toString()) && getInventory().get(itemInInventory) >= amount) return true;
         }
         return false;
     }
@@ -35,7 +27,7 @@ public class NonFighter {
         for (Item item: itemsHashMap.keySet()) {
             if(checkInventory(item)) {getInventory().put(item, getInventory().get(item) + itemsHashMap.get(item));}
             else getInventory().put(item, itemsHashMap.get(item));
-            System.out.println(getName() + " took: " + item.getName() + " {" + itemsHashMap.get(item) + "}");
+            System.out.println(getName() + " took: " + item + " {" + itemsHashMap.get(item) + "}");
             System.out.println();
         }
     }
@@ -57,32 +49,27 @@ public class NonFighter {
         return null;
     }
 
-    public HashMap<Item, Integer> drop(Item itemToDrop,int amount ) {
+    public HashMap<Item, Integer> drop(Item itemToDrop, int amount ) {
         if(checkInventory(itemToDrop, amount)){
             getInventory().put(itemToDrop, getInventory().get(itemToDrop) - amount);
-            System.out.println(getName() + " dropped: " + itemToDrop.getName() + " {" + amount + "}");
+            System.out.println(getName() + " dropped: " + itemToDrop + " {" + amount + "}");
             System.out.println();
 
             HashMap<Item, Integer> temp = new HashMap<>();
             temp.put(itemToDrop,amount);
-            //remove everything with zero number of items
-            /*for (Item item: getInventory().keySet()) {
-                if(getInventory().)
-            }
-            getInventory().values().stream().filter(items -> items == 0).forEach(emptyItem -> getInventory().remove(getKeyFromValue(emptyItem)));
-            */
 
+            if(getInventory().get(itemToDrop) == 0) getInventory().remove(itemToDrop);
             return temp;
         }
         else{
-            System.out.println("You do not have enough " + itemToDrop.getName());
+            System.out.println("You do not have enough " + itemToDrop);
             System.out.println();
             return null;
         }
     }
     public HashMap<Item, Integer> drop(String itemName){
         for (Item item : getInventory().keySet()) {
-            if(item.getName().equals(itemName)) return drop(item);
+            if(item.equals(itemName)) return drop(item);
         }
         return null;
     }

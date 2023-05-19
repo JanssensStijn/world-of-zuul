@@ -1,4 +1,5 @@
 import java.util.HashMap;
+import java.util.Objects;
 
 /**
  * Class Room - a room in an adventure game.
@@ -21,7 +22,7 @@ public class Room {
     private HashMap<String, Room> exits;
     private HashMap<Item, Integer> items;
     private HashMap<Fighter, Integer> enemies;
-    private HashMap<NonFighter, Integer> friendlies;
+    private NonFighter character;
 
     /**
      * Create a room described "description". Initially, it has
@@ -36,7 +37,6 @@ public class Room {
         exits = new HashMap<>();
         items = new HashMap<>();
         enemies = new HashMap<>();
-        friendlies = new HashMap<>();
     }
     public String getName (){return name;}
 
@@ -55,23 +55,17 @@ public class Room {
     }
 
     public void addItem(Item item, int amount) {
-        items.put(item, amount);
-    }
-    public void addItemsFromLoot(HashMap<Item, Integer> loot) {
-
-        for (Item item: loot.keySet()) {
-            if(items.containsKey(item)) items.put(item, items.get(item) + loot.get(item));
-                else items.put(item, loot.get(item));
-        }
+            if(items.containsKey(item)) items.put(item, items.get(item) + amount);
+                else items.put(item, amount);
     }
     public void addEnemy(Fighter enemy, int amount){
         enemies.put(enemy, amount);
     }
-    public void addFriendly(NonFighter friendly, int amount){
-        friendlies.put(friendly, amount);
+    public void setCharacter(NonFighter friendly){
+        character = friendly;
     }
     public HashMap<Fighter, Integer> getEnemies(){return enemies;}
-    public HashMap<NonFighter, Integer> getFriendlies(){return friendlies;}
+    public NonFighter getCharacter(){return character;}
 
     /**
      * @return The description of the room.
@@ -95,14 +89,14 @@ public class Room {
 
     public boolean hasItem(String itemToHave) {
         for (Item item : items.keySet()) {
-            if (item.getName().equals(itemToHave)) return true;
+            if (item.toString().equals(itemToHave)) return true;
         }
         return false;
     }
 
     public Item getItem(String name) {
         for (Item item : items.keySet()) {
-            if (item.getName().equals(name)) {
+            if (item.toString().equals(name)) {
                 return item;
             }
         }
@@ -110,15 +104,14 @@ public class Room {
     }
     public int getNumberOfItem(String name) {
         for (Item item : items.keySet()) {
-            if (item.getName().equals(name)) {
+            if (item.toString().equals(name)) {
                 return items.get(item);
             }
         }
         return 0;
     }
-    public void removeItem(Item itemToBeRemoved,int amount){
-        if(items.containsKey(itemToBeRemoved) && items.get(itemToBeRemoved) >= amount) items.put(itemToBeRemoved, items.get(itemToBeRemoved) - amount);
-        else items.remove(itemToBeRemoved);
+    public HashMap<Item, Integer> getItems(){
+        return items;
     }
 
     public String getLongDescription() {
@@ -130,7 +123,7 @@ public class Room {
         if (items.isEmpty()) return returnString + " nothing.";
             else{
             for (Item item : items.keySet()) {
-                returnString += "\n   " + item.getName() + " {" + items.get(item) + "}";
+                returnString += "\n   " + item + " {" + items.get(item) + "}";
             }
             return returnString;
         }
@@ -142,7 +135,7 @@ public class Room {
         else return false;
     }
     public boolean containsFriendly(){
-        if(!friendlies.isEmpty())return true;
+        if(character != null)return true;
         else return false;
     }
     public void printEnemyInfo() {
@@ -162,12 +155,10 @@ public class Room {
                 enemies.put(enemy, enemies.get(enemy) - 1);
                 System.out.println("You have defeated 1 " + enemy.getName());
                 System.out.println("There are " + enemies.get(enemy) + " " + enemy.getName() + " left.");
-                addItemsFromLoot(enemy.dropLoot());
             }
             else if (!enemy.isAlive() && enemies.get(enemy) == 1)
             {
                 System.out.println("You have defeated the last " + enemy.getName());
-                addItemsFromLoot(enemy.dropLoot());
                 enemies.remove(enemy);
             }
         }

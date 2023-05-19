@@ -26,9 +26,8 @@ public class Fighter extends NonFighter {
         Random randomDamage = new Random();
         int damage = 0;
         int additionalDamage =  0;
-        for (Item item: getInventory().keySet()) {
-            if (item.getName().equals("sword")){ additionalDamage = 5;break;}
-        }
+
+        if(getInventory().containsKey(Item.SWORD))additionalDamage = 5;
 
         damage = randomDamage.nextInt(maxDamage) + additionalDamage;
         return damage;
@@ -38,6 +37,4 @@ public class Fighter extends NonFighter {
         if(damage > life) {life = 0; isAlive();}
         else life -= damage;
     }
-
-    public HashMap<Item, Integer> dropLoot(){return getInventory();}
 }

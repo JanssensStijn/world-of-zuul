@@ -39,12 +39,4 @@ public class CommandWords {
         if (validCommands.containsKey(aString)) return validCommands.get(aString);
         return CommandWord.UNKNOWN;
     }
-
-    public String showAll() {
-        String show = "";
-        for (String command : validCommands.keySet()) {
-            show += command + " ";
-        }
-        return show;
-    }
 }

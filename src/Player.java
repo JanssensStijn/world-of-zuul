@@ -4,7 +4,7 @@ import java.util.Stack;
 public class Player extends Fighter{
     private Room currentRoom;
 
-
+    private Stages currentStage = Stages.STAGE1;
 
     private int maxInventoryWeight;
 
@@ -15,6 +15,12 @@ public class Player extends Fighter{
         this.currentRoom = currentRoom;
         this.maxInventoryWeight = maxWeight;
         roomHistory = new Stack<>();
+    }
+    public Stages getCurrentStage(){return currentStage;}
+    public void nextStage(){
+        if(currentStage == Stages.STAGE1) currentStage = Stages.STAGE2;
+        else if(currentStage == Stages.STAGE2)  currentStage = Stages.STAGE3;
+        else currentStage = Stages.STAGE4;
     }
     public void increaseMaxInventoryWeight(int extraWeight) {
         this.maxInventoryWeight += extraWeight;
@@ -41,17 +47,21 @@ public class Player extends Fighter{
             HashMap<Item, Integer> temp = new HashMap<>();
             temp.put(item, amount);
             super.take(temp);
+            getCurrentRoom().getItems().remove(item);
         }
-        else System.out.println("The " + item.getName() + " is too heavy.");
+        else System.out.println("The " + item + " is too heavy.\n");
     }
 
-    private void takeAll(Item item){
-        take(item, getCurrentRoom().getNumberOfItem(item.getName()));
-    }
-    public void takeAll(String itemName){
-        if(getCurrentRoom().hasItem(itemName))
-            takeAll(getCurrentRoom().getItem(itemName));
-        else System.out.println("There is no item with that name");
+    public boolean takeAll(String itemName){
+        for (Item item: Item.values()) {
+            if(getCurrentRoom().hasItem(itemName)) {
+                take(getCurrentRoom().getItem(itemName), getCurrentRoom().getNumberOfItem(itemName));
+
+                return true;
+            }
+        }
+        System.out.println("There is no item with that name");
+        return false;
     }
     public void showInventory() {
         String desc = "There are ";
@@ -60,10 +70,11 @@ public class Player extends Fighter{
         } else {
             desc += "following items in your inventory: ";
             for (Item item : getInventory().keySet()) {
-                desc += "\n   " + item.getName() + " {" + getInventory().get(item) + "}" + item.getLongDescription();
+                desc += "\n   " + item + " {" + getInventory().get(item) + "}" + item.getLongDescription();
             }
         }
         System.out.println(desc);
+        System.out.println();
     }
     public String getShortItemDescription() {
         String returnString = "There are ";
@@ -71,7 +82,7 @@ public class Player extends Fighter{
         else{
             returnString += "following items in your inventory: ";
             for (Item item : getInventory().keySet()) {
-                returnString += "\n   " + item.getName() + " {" + getInventory().get(item) + "}";
+                returnString += "\n   " + item + " {" + getInventory().get(item) + "}";
             }
             return returnString;
         }
