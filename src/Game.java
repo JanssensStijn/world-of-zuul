@@ -13,7 +13,6 @@ public class Game {
     private Parser parser;
     private Player player;
     private Room cottage, forest, court, westPlaza, entrance, blacksmith, eastPlaza, watchTower, lookOut, pub, cellar;
-
     private Character smithy, bartender, wizard, stranger;
     private Fighter troll;
 

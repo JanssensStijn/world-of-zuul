@@ -1,3 +1,8 @@
+/**Enumeration of all the different items
+ *
+ *  @author Stijn Janssens
+ *  @version 2023/05/23
+ */
 public enum Item {
     COIN("coin", "Something you can pay with", 0.01),
     GLINTSTONE("glintstone", "To you it's just a shine blue rock", 0.3),
@@ -12,22 +17,40 @@ public enum Item {
     private String description;
     private double weight;
 
+    /**
+     * constructor of the enum
+     *
+     * @param name name of the item
+     * @param description description of the item
+     * @param weight weight of the item
+     */
     Item(String name, String description, double weight) {
         this.name = name;
         this.description = description;
         this.weight = weight;
     }
 
-    public String toString() {
-        return name;
-    }
-    public String getDescription() {
+    /**
+     * getter for the short description
+     * @return description of the item
+     */
+    private String getDescription() {
         return description;
     }
+
+    /**
+     * getter for the weight of the item
+     * @return weight of the item
+     */
     public double getWeight() {
         return weight;
     }
+
+    /**
+     * getter for the long description
+     * @return string with all info about the item
+     */
     public String getLongDescription() {
-        return " -" + this.description + "- with weight of " + this.weight + "kg each.";
+        return " -" + getDescription() + "- with weight of " + getWeight() + "kg each.";
     }
 }

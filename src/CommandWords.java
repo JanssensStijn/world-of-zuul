@@ -1,12 +1,11 @@
 import java.util.HashMap;
+
 /**
- * This class holds an enumeration of all command words known to the game.
- * It is used to recognise commands as they are typed in.
+ * This class used to recognise commands as they are typed in.
  *
  *  @author Stijn Janssens
  *  @version 2023/05/23
  */
-
 public class CommandWords {
     private HashMap<String, CommandWord> validCommands;
 
@@ -31,6 +30,12 @@ public class CommandWords {
         // if we get here, the string was not found in the commands
     }
 
+    /**
+     * get command corresponding with string given by user
+     *
+     * @param aString string given by user
+     * @return valid command when string corresponds with a command, otherwise return the UNKNOWN-command
+     */
     public CommandWord getCommand(String aString) {
         if (validCommands.containsKey(aString)) return validCommands.get(aString);
         return CommandWord.UNKNOWN;
