@@ -1,11 +1,11 @@
 import java.util.HashMap;
 
-public class NonFighter {
+public class Character {
     private String name;
 
     private HashMap<Item, Integer> inventory;
 
-    public NonFighter(String name) {
+    public Character(String name) {
 
         this.name = name;
         inventory = new HashMap<>();

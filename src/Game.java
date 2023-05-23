@@ -1,18 +1,12 @@
 /**
  * This class is the main class of the "World of Zuul" application.
- * "World of Zuul" is a very simple, text based adventure game.  Users
- * can walk around some scenery. That's all. It should really be extended
- * to make it more interesting!
- * <p>
- * To play this game, create an instance of this class and call the "play"
- * method.
- * <p>
+ * "World of Zuul" is a text based adventure game.
  * This main class creates and initialises all the others: it creates all
- * rooms, creates the parser and starts the game.  It also evaluates and
+ * rooms, items, characters and the parser and starts the game.  It also evaluates and
  * executes the commands that the parser returns.
  *
- * @author Michael Kölling, David J. Barnes  and Stijn Janssens
- * @version 2011.07.31
+ * @author Stijn Janssens
+ * @version 2023/05/23
  */
 
 public class Game {
@@ -20,7 +14,7 @@ public class Game {
     private Player player;
     private Room cottage, forest, court, westPlaza, entrance, blacksmith, eastPlaza, watchTower, lookOut, pub, cellar;
 
-    private NonFighter smithy, bartender, wizard, stranger;
+    private Character smithy, bartender, wizard, stranger;
     private Fighter troll;
 
     /**
@@ -32,14 +26,13 @@ public class Game {
         createItems();
         parser = new Parser();
     }
+
     /**
      * Main play routine.  Loops until end of play.
      */
     public void play() {
         printWelcome();
 
-        // Enter the main command loop.  Here we repeatedly read commands and
-        // execute them until the game is over.
         boolean finished = false;
         Command command;
         while (!finished && player.isAlive() && player.getCurrentStage() != Stages.STAGE4) {
@@ -48,6 +41,7 @@ public class Game {
         }
         System.out.println("Thank you for playing.  Good bye.");
     }
+
     /**
      * Create all the rooms and link their exits together.
      */
@@ -99,7 +93,7 @@ public class Game {
     }
 
     /**
-     * Create all the rooms and link their exits together.
+     * Add all items to their corresponding room or character
      */
     private void createItems() {
 
@@ -121,7 +115,8 @@ public class Game {
         bartender.take(Item.BEER, 1);
 
         //for test purposes only
-        /*player.take(Item.GLINTSTONE, 10);
+        /*
+        player.take(Item.GLINTSTONE, 10);
         player.nextStage();
         player.take(Item.COIN, 7);
         player.nextStage();
@@ -137,10 +132,10 @@ public class Game {
 
         this.player = new Player("Player", entrance,10, 20, 5);
         this.troll = new Fighter("troll", 20, 5);
-        this.wizard = new NonFighter("wizard");
-        this.smithy = new NonFighter("smithy");
-        this.bartender = new NonFighter("bartender");
-        this.stranger = new NonFighter("stranger");
+        this.wizard = new Character("wizard");
+        this.smithy = new Character("smithy");
+        this.bartender = new Character("bartender");
+        this.stranger = new Character("stranger");
         entrance.setCharacter(stranger);
         court.setCharacter(wizard);
         blacksmith.setCharacter(smithy);
@@ -165,6 +160,9 @@ public class Game {
         System.out.println();
     }
 
+    /**
+     * main method
+     */
     public static void main(String[] args) {
         Game game = new Game();
         game.play();

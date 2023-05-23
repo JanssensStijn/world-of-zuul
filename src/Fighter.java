@@ -1,7 +1,6 @@
-import java.util.HashMap;
 import java.util.Random;
 
-public class Fighter extends NonFighter {
+public class Fighter extends Character {
     private int life;
     private int maxLife;
     private int maxDamage;

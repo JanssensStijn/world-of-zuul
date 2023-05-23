@@ -1,5 +1,4 @@
 import java.util.HashMap;
-import java.util.Objects;
 
 /**
  * Class Room - a room in an adventure game.
@@ -22,7 +21,7 @@ public class Room {
     private HashMap<String, Room> exits;
     private HashMap<Item, Integer> items;
     private HashMap<Fighter, Integer> enemies;
-    private NonFighter character;
+    private Character character;
 
     /**
      * Create a room described "description". Initially, it has
@@ -61,11 +60,11 @@ public class Room {
     public void addEnemy(Fighter enemy, int amount){
         enemies.put(enemy, amount);
     }
-    public void setCharacter(NonFighter friendly){
+    public void setCharacter(Character friendly){
         character = friendly;
     }
     public HashMap<Fighter, Integer> getEnemies(){return enemies;}
-    public NonFighter getCharacter(){return character;}
+    public Character getCharacter(){return character;}
 
     /**
      * @return The description of the room.
