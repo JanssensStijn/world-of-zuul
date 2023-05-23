@@ -110,8 +110,8 @@ public class Game {
         westPlaza.addItem(Item.GLINTSTONE, 1);
         eastPlaza.addItem(Item.GLINTSTONE, 1);
 
-        smithy.take(Item.SWORD, 1);
-        bartender.take(Item.BEER, 1);
+        smithy.addItem(Item.SWORD, 1);
+        bartender.addItem(Item.BEER, 1);
 
         //for test purposes only
         /*

@@ -51,6 +51,10 @@ public class LOOKcommand extends Command{
 
         return false;
     }
+
+    /**
+     * show map in prompt
+     */
     private void showMap(){
         System.out.println(
                 "                                  ▌▀▀▀▀▀▀▀▐       ▌▀▀▀▀▀▀▀▀▀▀▀▀▐\n"+
