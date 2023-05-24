@@ -4,18 +4,15 @@
  *  @version 2023/05/23
  */
 public enum Stages {
-    STAGE1("1"),
-    STAGE2 ("2"),
-    STAGE3 ("3"),
-    STAGE4 ("4");
+    STAGE1,
+    STAGE2,
+    STAGE3,
+    STAGE4;
 
     private String numberOfStage;
 
     /**
      * constructor of the enum
-     * @param numberOfStage
      */
-    Stages(String numberOfStage) {
-        this.numberOfStage = numberOfStage;
-    }
+    Stages() { }
 }

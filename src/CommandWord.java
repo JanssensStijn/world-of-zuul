@@ -20,11 +20,20 @@ public enum CommandWord {
 
     private String commandString;
 
-    /**getter for the command string
-     *
+    /**
+     * getter for the command string
      * @param commandString string representation of the command
      */
     CommandWord(String commandString) {
         this.commandString = commandString;
+    }
+
+    /**
+     * the toString method need to be overwritten otherwise the enums will correspond to numbers instead of the commandString causing problems when comparing to the string given by the user
+     * @return commandString
+     */
+    @Override
+    public String toString() { //need to be present otherwise the enums will correspond to numbers instead of the commandString
+        return commandString;
     }
 }

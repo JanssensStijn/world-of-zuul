@@ -117,13 +117,11 @@ public class Player extends Fighter{
      * @param itemName item to be taken
      */
     public boolean takeAll(String itemName){
-        for (Item item: Item.values()) {
             if(getCurrentRoom().hasItem(itemName)) {
                 take(getCurrentRoom().getItem(itemName), getCurrentRoom().getNumberOfItem(itemName));
 
                 return true;
             }
-        }
         System.out.println("There is no item with that name");
         return false;
     }
